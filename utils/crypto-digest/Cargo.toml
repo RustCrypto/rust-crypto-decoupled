@@ -1,0 +1,13 @@
+[package]
+name = "crypto_digest"
+version = "0.0.1"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+rustc-serialize = {version = "0.3", optional = true}
+rand = {version = "0.3", optional = true}
+
+[features]
+default = ["use-std"]
+use-std = ["rustc-serialize", "rand"]

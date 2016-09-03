@@ -1,0 +1,14 @@
+[package]
+name = "rust-crypto-decoupled"
+version = "0.0.1"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
+
+[lib]
+name = "crypto"
+
+[dependencies]
+md5 = {path = "../md5"}
+sha1 = {path = "../sha1"}
+sha2 = {path = "../sha2"}
+sha3 = {path = "../sha3"}

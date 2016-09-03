@@ -1,0 +1,8 @@
+[package]
+name = "crypto_symmetric"
+version = "0.0.1"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+crypto_buffers = {path = "../crypto-buffers"}

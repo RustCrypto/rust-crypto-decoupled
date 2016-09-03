@@ -1,0 +1,14 @@
+[package]
+name = "sha3"
+version = "0.0.1"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+rustc-serialize = {version = "0.3", optional = true}
+crypto_bytes = {path = "../utils/crypto-bytes", default-features = false}
+crypto_digest = {path = "../utils/crypto-digest", default-features = false}
+
+[features]
+default = ["use-std"]
+use-std = ["rustc-serialize", "crypto_bytes/use-std", "crypto_digest/use-std"]
