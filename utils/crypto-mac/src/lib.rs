@@ -3,7 +3,7 @@ extern crate constant_op;
 use constant_op::fixed_time_eq;
 
 /// The Mac trait defines methods for a Message Authentication function.
-pub trait Mac {
+pub trait Mac<MacResult> {
     /// Process input data.
     ///
     /// # Arguments
@@ -28,23 +28,22 @@ pub trait Mac {
 
 /// A MacResult wraps a Mac code and provides a safe Eq implementation that runs
 /// in fixed time.
-pub struct MacResult {
-    code: Vec<u8>
+pub struct MacResult128 {
+    code: [u8; 16]
 }
 
-impl MacResult {
+impl MacResult128 {
     /// Create a new MacResult.
-    pub fn new(code: &[u8]) -> MacResult {
-        MacResult {
-            code: code.to_vec()
-        }
+    pub fn new(code: [u8; 16]) -> MacResult128 {
+        MacResult128{code: code}
     }
 
-    /// Create a new MacResult taking ownership of the specified code value.
-    pub fn new_from_owned(code: Vec<u8>) -> MacResult {
-        MacResult {
-            code: code
-        }
+    /// Create a new MacResult from slice
+    pub fn new_from_slice(code: &[u8]) -> MacResult128 {
+        assert_eq!(code.len(), 16);
+        let mut mac = MacResult128{code: Default::default()};
+        mac.code.clone_from_slice(code);
+        mac
     }
 
     /// Get the code value. Be very careful using this method, since incorrect
@@ -55,12 +54,10 @@ impl MacResult {
     }
 }
 
-impl PartialEq for MacResult {
-    fn eq(&self, x: &MacResult) -> bool {
-        let lhs = self.code();
-        let rhs = x.code();
-        fixed_time_eq(lhs, rhs)
+impl PartialEq for MacResult128 {
+    fn eq(&self, x: &MacResult128) -> bool {
+        fixed_time_eq(&self.code[..], &x.code[..])
     }
 }
 
-impl Eq for MacResult { }
+impl Eq for MacResult128 { }

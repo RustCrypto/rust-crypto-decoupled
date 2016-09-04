@@ -75,7 +75,7 @@ pub unsafe trait Simd {
 /// A SIMD vector of 4 `u32`s.
 #[repr(simd)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, Copy)]
+#[derive(Debug, Copy, PartialEq, Eq)]
 pub struct u32x4(pub u32, pub u32, pub u32, pub u32);
 /// A SIMD vector of 4 `i32`s.
 #[repr(simd)]
