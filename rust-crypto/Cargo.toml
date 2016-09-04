@@ -13,3 +13,4 @@ sha1 = {path = "../sha1"}
 sha2 = {path = "../sha2"}
 sha3 = {path = "../sha3"}
 ripemd160 = {path = "../ripemd160"}
+whirlpool = {path = "../whirlpool"}
