@@ -1,6 +1,6 @@
-#[cfg(feature = "use-std")]
+#![cfg(feature = "use-std")]
 use std::iter::repeat;
-use super::Digest;
+use crypto_digest::Digest;
 use rand::IsaacRng;
 use rand::distributions::{IndependentSample, Range};
 

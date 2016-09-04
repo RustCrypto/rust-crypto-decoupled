@@ -3,14 +3,9 @@
 #[cfg(feature = "use-std")]
 extern crate rustc_serialize;
 #[cfg(feature = "use-std")]
-extern crate rand;
-#[cfg(feature = "use-std")]
 use std::iter::repeat;
 #[cfg(feature = "use-std")]
 use rustc_serialize::hex::ToHex;
-
-#[cfg(feature = "use-std")]
-pub mod test_digest;
 
 /// The Digest trait specifies an interface common to digest functions, such as
 /// SHA-1 and the SHA-2 family of digest functions.
@@ -52,8 +47,8 @@ pub trait Digest {
     /// * `input` The string to feed into the digest
     fn input_str(&mut self, input: &str) { self.input(input.as_bytes()); }
 
-    // Convenience function that retrieves the result of a digest as a
-    // String in hexadecimal format.
+    /// Convenience function that retrieves the result of a digest as a
+    /// String in hexadecimal format.
     #[cfg(feature = "use-std")]
     fn result_str(&mut self) -> String {
         let mut buf: Vec<u8> =

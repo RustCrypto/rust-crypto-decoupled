@@ -1,5 +1,6 @@
 #![cfg(feature = "use-std")]
-use crypto_digest::{Digest, test_digest};
+use crypto_digest::Digest;
+use crypto_tests;
 use super::Sha1;
 
 #[derive(Clone)]
@@ -84,5 +85,5 @@ fn test_fips_180_1() {
 fn test_1million_random_sha1() {
     let mut sh = Sha1::new();
     let output = "34aa973cd4c4daa4f61eeb2bdbad27316534016f";
-    test_digest::one_million_random(&mut sh, 64, output);
+    crypto_tests::digest::one_million_random(&mut sh, 64, output);
 }

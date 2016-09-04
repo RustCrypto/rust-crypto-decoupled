@@ -1,5 +1,6 @@
 #![cfg(feature="use-std")]
-use crypto_digest::{Digest, test_digest};
+use crypto_digest::Digest;
+use crypto_tests;
 use super::{Sha512, Sha384, Sha512Trunc256, Sha512Trunc224, Sha256, Sha224};
 
 struct Test {
@@ -183,16 +184,17 @@ fn test_sha224() {
 #[test]
 fn test_1million_random_sha512() {
     let mut sh = Sha512::new();
-    test_digest::one_million_random(&mut sh,
-                                128,
-                                "e718483d0ce769644e2e42c7bc15b4638e1f98b13b2044285632a803afa973ebde0ff244877ea60a4cb0432ce577c31beb009c5c2c49aa2e4eadb217ad8cc09b");
+    let output = concat!("e718483d0ce769644e2e42c7bc15b4638e1f98b13b2044285632",
+                         "a803afa973ebde0ff244877ea60a4cb0432ce577c31beb009c5c",
+                         "2c49aa2e4eadb217ad8cc09b");
+    crypto_tests::digest::one_million_random(&mut sh, 128, output);
 }
 
 
 #[test]
 fn test_1million_random_sha256() {
     let mut sh = Sha256::new();
-    test_digest::one_million_random(&mut sh,
-                                64,
-                                "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0");
+    let output = concat!("cdc76e5c9914fb9281a1c7e284d73e67",
+                         "f1809a48a497200e046d39ccc7112cd0");
+    crypto_tests::digest::one_million_random(&mut sh, 64, output);
 }

@@ -74,6 +74,8 @@ extern crate crypto_bytes;
 extern crate crypto_digest;
 extern crate crypto_fixed_buffer;
 extern crate simd;
+#[cfg(test)]
+extern crate crypto_tests;
 
 use crypto_digest::Digest;
 use crypto_bytes::{write_u32_be, read_u32v_be, write_u64_be, read_u64v_be,

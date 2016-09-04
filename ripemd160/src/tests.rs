@@ -1,5 +1,6 @@
 #![cfg(feature="use-std")]
-use crypto_digest::{Digest, test_digest};
+use crypto_digest::Digest;
+use crypto_tests;
 use super::Ripemd160;
 
 #[derive(Clone)]
@@ -99,7 +100,6 @@ fn test() {
 #[test]
 fn test_1million_random_ripemd160() {
     let mut sh = Ripemd160::new();
-    test_digest::one_million_random(&mut sh,
-                                    64,
-                                    "52783243c1697bdbe16d37f97f68f08325dc1528");
+    let output = "52783243c1697bdbe16d37f97f68f08325dc1528";
+    crypto_tests::digest::one_million_random(&mut sh, 64, output);
 }

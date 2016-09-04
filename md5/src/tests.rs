@@ -1,5 +1,6 @@
 #![cfg(feature="use-std")]
-use crypto_digest::{Digest, test_digest};
+use crypto_digest::Digest;
+use crypto_tests;
 use super::Md5;
 
 struct Test {
@@ -60,7 +61,6 @@ fn test_md5() {
 #[test]
 fn test_1million_random_md5() {
     let mut sh = Md5::new();
-    test_digest::one_million_random(&mut sh,
-                                64,
-                                "7707d6ae4e027c70eea2a935c2296f21");
+    let output = "7707d6ae4e027c70eea2a935c2296f21";
+    crypto_tests::digest::one_million_random(&mut sh, 64, output);
 }

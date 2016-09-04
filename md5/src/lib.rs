@@ -6,6 +6,8 @@ extern crate test;
 extern crate crypto_bytes;
 extern crate crypto_digest;
 extern crate crypto_fixed_buffer;
+#[cfg(test)]
+extern crate crypto_tests;
 
 use crypto_bytes::{write_u32_le, read_u32v_le};
 use crypto_digest::Digest;
