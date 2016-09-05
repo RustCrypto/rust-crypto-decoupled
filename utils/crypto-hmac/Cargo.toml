@@ -1,0 +1,17 @@
+[package]
+name = "crypto_hmac"
+version = "0.0.1"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+crypto_digest = {path = "../crypto-digest", default-features = false}
+crypto_bytes = {path = "../crypto-bytes", default-features = false}
+crypto_mac = {path = "../crypto-mac", default-features = false}
+
+#[dev-dependencies]
+#md5 = {path = "../../hash/md5", default-features = false}
+
+[features]
+default = ["use-std"]
+use-std = ["crypto_bytes/use-std", "crypto_digest/use-std", "crypto_mac/use-std"]
