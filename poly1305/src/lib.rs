@@ -1,18 +1,13 @@
 //! This is an implementaiton of Poly1305. It is based on the work of
 //! of Andrew Moons: https://github.com/floodyberry/poly1305-donna
 
-#![cfg_attr(not(feature="use-std"), no_std)]
-#![cfg_attr(test, feature(test))]
-#[cfg(test)]
+#![no_std]
+#![feature(test)]
 extern crate test;
 extern crate crypto_bytes;
 extern crate crypto_mac;
 
-#[cfg(feature="use-std")]
-use std::cmp::min;
-#[cfg(not(feature="use-std"))]
 use core::cmp::min;
-
 use crypto_bytes::{read_u32_le, write_u32_le};
 use crypto_mac::{Mac, MacResult128};
 
@@ -182,7 +177,7 @@ impl Mac<MacResult128> for Poly1305 {
                 return;
             }
 
-            // self.block(self.buffer[..]);
+            // self.block(&self.buffer[..]);
             let tmp = self.buffer;
             self.block(&tmp);
 

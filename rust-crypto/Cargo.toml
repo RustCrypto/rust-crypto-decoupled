@@ -17,6 +17,9 @@ whirlpool = {path = "../hash/whirlpool"}
 
 crypto_digest = {path = "../utils/crypto-digest"}
 
+ghash = {path = "../ghash"}
+poly1305 = {path = "../poly1305"}
+
 [features]
 default = ["std"]
 std = ["crypto_digest/std"]
