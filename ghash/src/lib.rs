@@ -11,22 +11,14 @@
 //! [2] - "Faster and Timing-Attack Resistant AES-GCM" - Emilia Käsper and Peter Schwabe
 //!       <http://cryptojedi.org/papers/aesbs-20090616.pdf>
 
-#![cfg_attr(not(feature="use-std"), no_std)]
-#![cfg_attr(test, feature(test))]
-#[cfg(test)]
+#![no_std]
+#![feature(test)]
 extern crate test;
 extern crate crypto_bytes;
 extern crate crypto_mac;
 extern crate simd;
 
-#[cfg(feature="use-std")]
-use std::ops::BitXor;
-#[cfg(feature="use-std")]
-use std::mem;
-
-#[cfg(not(feature="use-std"))]
 use core::ops::BitXor;
-#[cfg(not(feature="use-std"))]
 use core::mem;
 
 use crypto_bytes::{read_u32_be, write_u32_be, copy_memory};

@@ -1,12 +1,8 @@
 [package]
 name = "crypto_mac"
-version = "0.0.1"
+version = "0.0.0"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
-constant_op = {path = "../constant-op", default-features = false}
-
-[features]
-default = ["use-std"]
-use-std = ["constant_op/use-std"]
+constant_op = {path = "../constant-op"}

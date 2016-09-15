@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature="use-std"), no_std)]
+#![no_std]
 extern crate libc;
 
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
