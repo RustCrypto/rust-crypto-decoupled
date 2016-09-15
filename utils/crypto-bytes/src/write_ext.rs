@@ -1,5 +1,5 @@
-#![cfg(feature = "use-std")]
-// TODO: Wait for `core::io` and remove `use-std` constraint
+#![cfg(feature = "std")]
+// TODO: Wait for `core::io` and remove `std` constraint
 use std::io;
 use super::{write_u32_le, write_u32_be, write_u64_le, write_u64_be};
 

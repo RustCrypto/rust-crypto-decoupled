@@ -1,13 +1,8 @@
 [package]
 name = "crypto_fixed_buffer"
-version = "0.0.1"
+version = "0.0.0"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
-[dependencies.crypto_bytes]
-path = "../crypto-bytes"
-default-features = false
-
-[features]
-default = ["use-std"]
-use-std = ["crypto_bytes/use-std"]
+[dependencies]
+crypto_bytes = {path = "../crypto-bytes", default-features = false}

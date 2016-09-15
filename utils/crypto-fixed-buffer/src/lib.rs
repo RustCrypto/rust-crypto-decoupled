@@ -1,4 +1,4 @@
-#![cfg_attr(not(feature="use-std"), no_std)]
+#![no_std]
 extern crate crypto_bytes;
 use crypto_bytes::{copy_memory, zero};
 

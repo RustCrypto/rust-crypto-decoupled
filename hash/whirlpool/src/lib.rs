@@ -29,16 +29,16 @@
 //! "2f332c9f518c3036456502a8414d300a"));
 //! ```
 
-#![cfg_attr(not(feature="use-std"), no_std)]
+#![no_std]
 #![feature(test)]
 extern crate test;
 extern crate crypto_bytes;
 extern crate crypto_digest;
 extern crate crypto_fixed_buffer;
+#[cfg(test)]
+#[macro_use]
+extern crate crypto_tests;
 
-#[cfg(feature="use-std")]
-use std::mem::uninitialized;
-#[cfg(not(feature="use-std"))]
 use core::mem::uninitialized;
 
 use crypto_bytes::write_u64_be;
@@ -149,13 +149,9 @@ impl Digest for Whirlpool {
         self.hash = [0; 8];    
     }
 
-    fn output_bits(&self) -> usize {
-        512
-    }
+    fn output_bytes(&self) -> usize { 512/8 }
 
-    fn block_size(&self) -> usize {
-        512
-    }
+    fn block_size(&self) -> usize { 512 }
 }
 
 fn process_buffer(hash: &mut[u64; 8], buffer: &[u8]) {

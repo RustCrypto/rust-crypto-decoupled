@@ -10,7 +10,7 @@
 //! The `Ripemd160` object may be reused to create multiple hashes by
 //! calling the `reset` method.
 
-#![cfg_attr(not(feature="use-std"), no_std)]
+#![no_std]
 #![feature(test)]
 
 extern crate test;
@@ -18,6 +18,7 @@ extern crate crypto_bytes;
 extern crate crypto_digest;
 extern crate crypto_fixed_buffer;
 #[cfg(test)]
+#[macro_use]
 extern crate crypto_tests;
 
 use crypto_bytes::{write_u32_le, read_u32v_le, add_bytes_to_bits};
@@ -393,7 +394,7 @@ impl Digest for Ripemd160 {
     }
 
     /// Returns the size of the digest in bits
-    fn output_bits(&self) -> usize { 160 }
+    fn output_bytes(&self) -> usize { 20 }
 
     /// Returns the block size the hash operates on in bytes
     fn block_size(&self) -> usize { 64 }

@@ -1,8 +1,8 @@
-#![cfg_attr(not(feature="use-std"), no_std)]
+#![cfg_attr(not(feature="std"), no_std)]
 
-#[cfg(feature = "use-std")]
+#[cfg(feature = "std")]
 use std::{mem, ptr};
-#[cfg(not(feature = "use-std"))]
+#[cfg(not(feature = "std"))]
 use core::{mem, ptr};
 
 pub mod write_ext;

@@ -49,7 +49,7 @@
 //! algorithms, but some, like "parity" is only found in SHA-1.
 
 
-#![cfg_attr(not(feature="use-std"), no_std)]
+#![no_std]
 #![feature(test)]
 extern crate test;
 extern crate crypto_bytes;
@@ -57,6 +57,7 @@ extern crate crypto_digest;
 extern crate crypto_fixed_buffer;
 extern crate simd;
 #[cfg(test)]
+#[macro_use]
 extern crate crypto_tests;
 
 use crypto_digest::Digest;
@@ -430,7 +431,7 @@ impl Digest for Sha1 {
     }
     fn input(&mut self, msg: &[u8]) { add_input(self, msg); }
     fn result(&mut self, out: &mut [u8]) { mk_result(self, out) }
-    fn output_bits(&self) -> usize { 160 }
+    fn output_bytes(&self) -> usize { 20 }
     fn block_size(&self) -> usize { 64 }
 }
 

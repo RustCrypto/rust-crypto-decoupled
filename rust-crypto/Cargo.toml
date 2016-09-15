@@ -1,6 +1,6 @@
 [package]
 name = "rust-crypto-decoupled"
-version = "0.0.1"
+version = "0.0.0"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
@@ -8,9 +8,15 @@ license = "MIT/Apache-2.0"
 name = "crypto"
 
 [dependencies]
-md5 = {path = "../md5"}
-sha1 = {path = "../sha1"}
-sha2 = {path = "../sha2"}
-sha3 = {path = "../sha3"}
-ripemd160 = {path = "../ripemd160"}
-whirlpool = {path = "../whirlpool"}
+md5 = {path = "../hash/md5"}
+ripemd160 = {path = "../hash/ripemd160"}
+sha1 = {path = "../hash/sha1"}
+sha2 = {path = "../hash/sha2"}
+sha3 = {path = "../hash/sha3"}
+whirlpool = {path = "../hash/whirlpool"}
+
+crypto_digest = {path = "../utils/crypto-digest"}
+
+[features]
+default = ["std"]
+std = ["crypto_digest/std"]

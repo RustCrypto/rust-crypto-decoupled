@@ -34,21 +34,17 @@
 //! assert_eq!(hex, out);
 //! ```
 
-#![cfg_attr(not(feature="use-std"), no_std)]
+#![no_std]
 #![feature(test)]
-#![feature(stmt_expr_attributes)] 
+#![feature(stmt_expr_attributes)]
 extern crate test;
 extern crate crypto_bytes;
 extern crate crypto_digest;
+#[cfg(test)]
+#[macro_use]
+extern crate crypto_tests;
 
-#[cfg(feature = "use-std")]
-extern crate rustc_serialize;
-
-#[cfg(feature = "use-std")]
-use std::cmp;
-#[cfg(not(feature = "use-std"))]
 use core::cmp;
-
 use crypto_digest::Digest;
 use crypto_bytes::zero;
 
@@ -75,27 +71,36 @@ impl Sha3Mode {
     /// for modes with variable output as for shake functions.
     pub fn digest_length(&self) -> usize {
         match *self {
-            Sha3Mode::Sha3_224 | Sha3Mode::Keccak224 => 28,
-            Sha3Mode::Sha3_256 | Sha3Mode::Keccak256 => 32,
-            Sha3Mode::Sha3_384 | Sha3Mode::Keccak384 => 48,
-            Sha3Mode::Sha3_512 | Sha3Mode::Keccak512 => 64,
-            Sha3Mode::Shake128 | Sha3Mode::Shake256 => 0
+            Sha3Mode::Sha3_224 |
+            Sha3Mode::Keccak224 => 28,
+            Sha3Mode::Sha3_256 |
+            Sha3Mode::Keccak256 => 32,
+            Sha3Mode::Sha3_384 |
+            Sha3Mode::Keccak384 => 48,
+            Sha3Mode::Sha3_512 |
+            Sha3Mode::Keccak512 => 64,
+            Sha3Mode::Shake128 |
+            Sha3Mode::Shake256 => 0,
         }
     }
 
     /// Return `true` if `mode` is a SHAKE mode.
     pub fn is_shake(&self) -> bool {
         match *self {
-            Sha3Mode::Shake128 | Sha3Mode::Shake256 => true,
-            _ => false
+            Sha3Mode::Shake128 |
+            Sha3Mode::Shake256 => true,
+            _ => false,
         }
     }
 
     /// Return `true` if `mode` is a Keccak mode.
     pub fn is_keccak(&self) -> bool {
         match *self {
-            Sha3Mode::Keccak224 | Sha3Mode::Keccak256 | Sha3Mode::Keccak384 | Sha3Mode::Keccak512 => true,
-            _ => false
+            Sha3Mode::Keccak224 |
+            Sha3Mode::Keccak256 |
+            Sha3Mode::Keccak384 |
+            Sha3Mode::Keccak512 => true,
+            _ => false,
         }
     }
 
@@ -103,21 +108,26 @@ impl Sha3Mode {
     fn capacity(&self) -> usize {
         match *self {
             Sha3Mode::Shake128 => 32,
-            Sha3Mode::Sha3_224 | Sha3Mode::Keccak224 => 56,
-            Sha3Mode::Sha3_256 | Sha3Mode::Keccak256 | Sha3Mode::Shake256 => 64,
-            Sha3Mode::Sha3_384 | Sha3Mode::Keccak384 => 96,
-            Sha3Mode::Sha3_512 | Sha3Mode::Keccak512 => 128,
+            Sha3Mode::Sha3_224 |
+            Sha3Mode::Keccak224 => 56,
+            Sha3Mode::Sha3_256 |
+            Sha3Mode::Keccak256 |
+            Sha3Mode::Shake256 => 64,
+            Sha3Mode::Sha3_384 |
+            Sha3Mode::Keccak384 => 96,
+            Sha3Mode::Sha3_512 |
+            Sha3Mode::Keccak512 => 128,
         }
     }
 }
 
 pub struct Sha3 {
-    state: [u8; keccak::B],  // B bytes
+    state: [u8; keccak::B], // B bytes
     mode: Sha3Mode,
-    can_absorb: bool,  // Can absorb
-    can_squeeze: bool,  // Can squeeze
-    offset: usize  // Enqueued bytes in state for absorb phase
-                   // Squeeze offset for squeeze phase
+    can_absorb: bool, // Can absorb
+    can_squeeze: bool, // Can squeeze
+    offset: usize, /* Enqueued bytes in state for absorb phase
+                    * Squeeze offset for squeeze phase */
 }
 
 impl Sha3 {
@@ -128,59 +138,39 @@ impl Sha3 {
             mode: mode,
             can_absorb: true,
             can_squeeze: true,
-            offset: 0
+            offset: 0,
         }
     }
 
     /// New SHA3-224 instance.
-    pub fn sha3_224() -> Sha3 {
-        Sha3::new(Sha3Mode::Sha3_224)
-    }
+    pub fn sha3_224() -> Sha3 { Sha3::new(Sha3Mode::Sha3_224) }
 
     /// New SHA3-256 instance.
-    pub fn sha3_256() -> Sha3 {
-        Sha3::new(Sha3Mode::Sha3_256)
-    }
+    pub fn sha3_256() -> Sha3 { Sha3::new(Sha3Mode::Sha3_256) }
 
     /// New SHA3-384 instance.
-    pub fn sha3_384() -> Sha3 {
-        Sha3::new(Sha3Mode::Sha3_384)
-    }
+    pub fn sha3_384() -> Sha3 { Sha3::new(Sha3Mode::Sha3_384) }
 
     /// New SHA3-512 instance.
-    pub fn sha3_512() -> Sha3 {
-        Sha3::new(Sha3Mode::Sha3_512)
-    }
+    pub fn sha3_512() -> Sha3 { Sha3::new(Sha3Mode::Sha3_512) }
 
     /// New SHAKE-128 instance.
-    pub fn shake_128() -> Sha3 {
-        Sha3::new(Sha3Mode::Shake128)
-    }
+    pub fn shake_128() -> Sha3 { Sha3::new(Sha3Mode::Shake128) }
 
     /// New SHAKE-256 instance.
-    pub fn shake_256() -> Sha3 {
-        Sha3::new(Sha3Mode::Shake256)
-    }
+    pub fn shake_256() -> Sha3 { Sha3::new(Sha3Mode::Shake256) }
 
     /// New Keccak224 instance.
-    pub fn keccak224() -> Sha3 {
-        Sha3::new(Sha3Mode::Keccak224)
-    }
+    pub fn keccak224() -> Sha3 { Sha3::new(Sha3Mode::Keccak224) }
 
     /// New Keccak256 instance.
-    pub fn keccak256() -> Sha3 {
-        Sha3::new(Sha3Mode::Keccak256)
-    }
+    pub fn keccak256() -> Sha3 { Sha3::new(Sha3Mode::Keccak256) }
 
     /// New Keccak384 instance.
-    pub fn keccak384() -> Sha3 {
-        Sha3::new(Sha3Mode::Keccak384)
-    }
+    pub fn keccak384() -> Sha3 { Sha3::new(Sha3Mode::Keccak384) }
 
     /// New Keccak512 instance.
-    pub fn keccak512() -> Sha3 {
-        Sha3::new(Sha3Mode::Keccak512)
-    }
+    pub fn keccak512() -> Sha3 { Sha3::new(Sha3Mode::Keccak512) }
 
     fn finalize(&mut self) {
         assert!(self.can_absorb);
@@ -234,7 +224,7 @@ impl Sha3 {
         let p_len = pad_len(ds_len, self.offset * 8, self.rate() * 8);
 
         // FIXME: check correctness
-        const BUF_LEN:usize = 1<<8;
+        const BUF_LEN: usize = 1 << 8;
         assert!(p_len < BUF_LEN);
         let mut buf = [0; BUF_LEN];
         let mut p = &mut buf[..p_len];
@@ -249,9 +239,7 @@ impl Sha3 {
         self.can_absorb = false;
     }
 
-    fn rate(&self) -> usize {
-        keccak::B - self.mode.capacity()
-    }
+    fn rate(&self) -> usize { keccak::B - self.mode.capacity() }
 }
 
 impl Digest for Sha3 {
@@ -345,13 +333,9 @@ impl Digest for Sha3 {
         zero(&mut self.state);
     }
 
-    fn output_bits(&self) -> usize {
-        self.mode.digest_length() * 8
-    }
+    fn output_bytes(&self) -> usize { self.mode.digest_length() }
 
-    fn block_size(&self) -> usize {
-        keccak::B - self.mode.capacity()
-    }
+    fn block_size(&self) -> usize { keccak::B - self.mode.capacity() }
 }
 
 #[cfg(test)]

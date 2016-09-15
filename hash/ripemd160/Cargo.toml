@@ -1,6 +1,6 @@
 [package]
 name = "ripemd160"
-version = "0.0.1"
+version = "0.0.0"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
@@ -10,9 +10,4 @@ crypto_digest = {path = "../../utils/crypto-digest", default-features = false}
 crypto_fixed_buffer = {path = "../../utils/crypto-fixed-buffer", default-features = false}
 
 [dev-dependencies]
-crypto_tests = {path = "../../utils/crypto-tests", default-features = false}
-
-[features]
-default = ["use-std"]
-use-std = ["crypto_bytes/use-std", "crypto_digest/use-std",
-           "crypto_fixed_buffer/use-std", "crypto_tests/use-std"]
+crypto_tests = {path = "../../utils/crypto-tests"}

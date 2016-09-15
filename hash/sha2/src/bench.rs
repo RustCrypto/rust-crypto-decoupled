@@ -1,6 +1,6 @@
 use test::Bencher;
 use crypto_digest::Digest;
-use super::{STATE_LEN, BLOCK_LEN};
+use consts::{STATE_LEN, BLOCK_LEN};
 use super::{Sha256, Sha512, sha256_digest_block_u32, sha512_digest_block_u64};
 
 #[bench]

@@ -1,6 +1,6 @@
 use test::Bencher;
 use crypto_digest::Digest;
-use super::{Sha3};
+use super::Sha3;
 
 #[bench]
 pub fn sha3_256_10(bh: &mut Bencher) {
@@ -61,4 +61,3 @@ pub fn sha3_512_64k(bh: &mut Bencher) {
     });
     bh.bytes = bytes.len() as u64;
 }
-
