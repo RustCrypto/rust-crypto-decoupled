@@ -1,5 +1,6 @@
 #!/bin/sh
-cd md5; cargo test;
+cd blake2; cargo test;
+cd ../md5; cargo test;
 cd ../ripemd160; cargo test;
 cd ../sha1; cargo test;
 cd ../sha2; cargo test;

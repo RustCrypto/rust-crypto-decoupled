@@ -5,8 +5,6 @@ use std::{mem, ptr};
 #[cfg(not(feature = "std"))]
 use core::{mem, ptr};
 
-pub mod write_ext;
-
 /// Write a u64 into a vector, which must be 8 bytes long. The value is written
 /// in big-endian format.
 pub fn write_u64_be(dst: &mut [u8], mut input: u64) {
