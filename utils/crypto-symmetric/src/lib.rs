@@ -1,8 +1,9 @@
+#![no_std]
 extern crate crypto_buffers;
 
 use crypto_buffers::{BufferResult, RefReadBuffer, RefWriteBuffer, ReadBuffer,
                      WriteBuffer};
-use std::cmp;
+use core::cmp;
 
 
 pub trait BlockEncryptor {
@@ -47,6 +48,8 @@ pub trait SynchronousStreamCipher {
     fn process(&mut self, input: &[u8], output: &mut [u8]);
 }
 
+/*
+
 // TODO - Its a bit unclear to me why this is necessary
 impl SynchronousStreamCipher for Box<SynchronousStreamCipher + 'static> {
     fn process(&mut self, input: &[u8], output: &mut [u8]) {
@@ -69,7 +72,7 @@ impl Decryptor for Box<SynchronousStreamCipher + 'static> {
                -> Result<BufferResult, SymmetricCipherError> {
         symm_enc_or_dec(self, input, output)
     }
-}
+}*/
 
 /// `symm_enc_or_dec()` implements the necessary functionality to turn a
 /// `SynchronousStreamCipher` into an Encryptor or Decryptor

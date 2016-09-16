@@ -1,18 +1,25 @@
 import re, sys, os
 from codecs import decode
 
-s = open('tests.txt').read()
-pattern = r'Test{input:"(?P<input>\w*)",output_str:"(?P<output>\w*)"}'
-res = re.findall(pattern, s.replace(' ', '').replace('\n', ''))
+def conv(val):
+    v = val.replace(',', '').replace('0x', '').replace('u8', '')
+    return decode(v, 'hex')
+
+s = open('tests.txt').read().replace(' ', '').replace('\n', '').replace('vec!', '')
+pattern = r'Test{key:\[(?P<key>[\w,\,]*)\],plaintext:\[(?P<input>[\w,\,]*)\],'\
+           r'ciphertext:\[(?P<output>[\w,\,]*)\]}'
+res = re.findall(pattern, s)
+print('result:', res)
 
 i = 1
 l = []
 prefix = sys.argv[1]
 os.mkdir(prefix)
-for inp, out in res:
-    l.append('"%s/test%d"' % (prefix, i))
-    open('%s/test%d.input' % (prefix, i), 'wb').write(decode(inp, 'hex'))
-    open('%s/test%d.output' % (prefix, i), 'wb').write(decode(out, 'hex'))
+for key, inp, out in res:
+    l.append('"%d"' % (i))
+    open('%s/%d.key.bin' % (prefix, i), 'wb').write(conv(key))
+    open('%s/%d.input.bin' % (prefix, i), 'wb').write(conv(inp))
+    open('%s/%d.output.bin' % (prefix, i), 'wb').write(conv(out))
     i += 1
 
 print(', '.join(l))

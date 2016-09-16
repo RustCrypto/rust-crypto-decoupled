@@ -1,0 +1,9 @@
+[package]
+name = "blowfish"
+version = "0.0.0"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+crypto_bytes = {path = "../utils/crypto-bytes", default-features = false}
+crypto_symmetric = {path = "../utils/crypto-symmetric"}

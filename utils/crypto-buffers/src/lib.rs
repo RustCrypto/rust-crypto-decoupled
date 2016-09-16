@@ -1,6 +1,7 @@
+#![no_std]
 extern crate crypto_bytes;
 
-use std::cmp;
+use core::cmp;
 use crypto_bytes::copy_memory;
 
 #[derive(Clone,Copy)]
@@ -91,6 +92,50 @@ impl<'a> ReadBuffer for RefReadBuffer<'a> {
     }
 }
 
+pub struct RefWriteBuffer<'a> {
+    buff: &'a mut [u8],
+    len: usize,
+    pos: usize,
+}
+
+impl<'a> RefWriteBuffer<'a> {
+    pub fn new(buff: &mut [u8]) -> RefWriteBuffer {
+        let len = buff.len();
+        RefWriteBuffer {
+            buff: buff,
+            len: len,
+            pos: 0,
+        }
+    }
+}
+
+impl<'a> WriteBuffer for RefWriteBuffer<'a> {
+    fn is_empty(&self) -> bool { self.pos == 0 }
+    fn is_full(&self) -> bool { self.pos == self.len }
+    fn remaining(&self) -> usize { self.len - self.pos }
+    fn capacity(&self) -> usize { self.len }
+
+    fn rewind(&mut self, distance: usize) { self.pos -= distance; }
+    fn reset(&mut self) { self.pos = 0; }
+
+    fn peek_read_buffer(&mut self) -> RefReadBuffer {
+        RefReadBuffer::new(&self.buff[..self.pos])
+    }
+
+    fn take_next(&mut self, count: usize) -> &mut [u8] {
+        let r = &mut self.buff[self.pos..self.pos + count];
+        self.pos += count;
+        r
+    }
+    fn take_read_buffer(&mut self) -> RefReadBuffer {
+        let r = RefReadBuffer::new(&self.buff[..self.pos]);
+        self.pos = 0;
+        r
+    }
+}
+
+
+/*
 pub struct OwnedReadBuffer {
     buff: Vec<u8>,
     len: usize,
@@ -138,48 +183,6 @@ impl ReadBuffer for OwnedReadBuffer {
     fn take_next(&mut self, count: usize) -> &[u8] {
         let r = &self.buff[self.pos..self.pos + count];
         self.pos += count;
-        r
-    }
-}
-
-pub struct RefWriteBuffer<'a> {
-    buff: &'a mut [u8],
-    len: usize,
-    pos: usize,
-}
-
-impl<'a> RefWriteBuffer<'a> {
-    pub fn new(buff: &mut [u8]) -> RefWriteBuffer {
-        let len = buff.len();
-        RefWriteBuffer {
-            buff: buff,
-            len: len,
-            pos: 0,
-        }
-    }
-}
-
-impl<'a> WriteBuffer for RefWriteBuffer<'a> {
-    fn is_empty(&self) -> bool { self.pos == 0 }
-    fn is_full(&self) -> bool { self.pos == self.len }
-    fn remaining(&self) -> usize { self.len - self.pos }
-    fn capacity(&self) -> usize { self.len }
-
-    fn rewind(&mut self, distance: usize) { self.pos -= distance; }
-    fn reset(&mut self) { self.pos = 0; }
-
-    fn peek_read_buffer(&mut self) -> RefReadBuffer {
-        RefReadBuffer::new(&self.buff[..self.pos])
-    }
-
-    fn take_next(&mut self, count: usize) -> &mut [u8] {
-        let r = &mut self.buff[self.pos..self.pos + count];
-        self.pos += count;
-        r
-    }
-    fn take_read_buffer(&mut self) -> RefReadBuffer {
-        let r = RefReadBuffer::new(&self.buff[..self.pos]);
-        self.pos = 0;
         r
     }
 }
@@ -279,3 +282,4 @@ impl WriteBuffer for OwnedWriteBuffer {
         r
     }
 }
+*/
