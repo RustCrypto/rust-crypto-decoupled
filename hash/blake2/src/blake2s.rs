@@ -1,5 +1,5 @@
 use crypto_bytes::{copy_memory, read_u32v_le, write_u32v_le, write_u32_le};
-use constant_op::secure_memset;
+use crypto_ops::secure_memset;
 use crypto_digest::Digest;
 use crypto_mac::{Mac, MacResult256};
 

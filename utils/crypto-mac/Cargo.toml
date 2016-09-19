@@ -5,4 +5,4 @@ authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
-constant_op = {path = "../constant-op"}
+crypto_ops = {path = "../crypto-ops"}

@@ -1,6 +1,6 @@
 #![no_std]
-extern crate constant_op;
-use constant_op::fixed_time_eq;
+extern crate crypto_ops;
+use crypto_ops::fixed_time_eq;
 
 /// The Mac trait defines methods for a Message Authentication function.
 pub trait Mac<MacResult> {

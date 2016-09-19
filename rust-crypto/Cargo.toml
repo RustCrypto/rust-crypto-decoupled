@@ -21,6 +21,9 @@ crypto_digest = {path = "../utils/crypto-digest"}
 ghash = {path = "../ghash"}
 poly1305 = {path = "../poly1305"}
 
+bcrypt = {path = "../bcrypt"}
+sosemanuk = {path = "../sosemanuk"}
+
 [features]
 default = ["std"]
 std = ["crypto_digest/std"]

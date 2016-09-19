@@ -4,7 +4,7 @@ extern crate test;
 extern crate crypto_bytes;
 extern crate crypto_digest;
 extern crate crypto_mac;
-extern crate constant_op;
+extern crate crypto_ops;
 #[cfg(test)]
 #[macro_use]
 extern crate crypto_tests;

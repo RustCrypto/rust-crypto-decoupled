@@ -1,5 +1,5 @@
 [package]
-name = "constant_op"
+name = "crypto_ops"
 version = "0.0.0"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"

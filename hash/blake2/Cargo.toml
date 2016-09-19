@@ -8,7 +8,7 @@ license = "MIT/Apache-2.0"
 crypto_bytes = {path = "../../utils/crypto-bytes", default-features = false}
 crypto_digest = {path = "../../utils/crypto-digest", default-features = false}
 crypto_mac = {path = "../../utils/crypto-mac", default-features = false}
-constant_op = {path = "../../utils/constant-op", default-features = false}
+crypto_ops = {path = "../../utils/crypto-ops"}
 
 [dev-dependencies]
 crypto_tests = {path = "../../utils/crypto-tests"}
