@@ -5,9 +5,9 @@ authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
-crypto_bytes = {path = "../../utils/crypto-bytes", default-features = false}
-crypto_digest = {path = "../../utils/crypto-digest", default-features = false}
-crypto_fixed_buffer = {path = "../../utils/crypto-fixed-buffer", default-features = false}
+crypto_bytes = {path = "../../utils/crypto-bytes"}
+crypto_digest = {path = "../../utils/crypto-digest"}
+crypto_fixed_buffer = {path = "../../utils/crypto-fixed-buffer"}
 
 [dev-dependencies]
 crypto_tests = {path = "../../utils/crypto-tests"}

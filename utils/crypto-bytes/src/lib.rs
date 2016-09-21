@@ -1,8 +1,4 @@
-#![cfg_attr(not(feature="std"), no_std)]
-
-#[cfg(feature = "std")]
-use std::{mem, ptr};
-#[cfg(not(feature = "std"))]
+#![no_std]
 use core::{mem, ptr};
 
 /// Write a u64 into a vector, which must be 8 bytes long. The value is written

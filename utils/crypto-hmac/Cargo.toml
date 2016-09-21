@@ -5,13 +5,13 @@ authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
-crypto_digest = {path = "../crypto-digest", default-features = false}
-crypto_bytes = {path = "../crypto-bytes", default-features = false}
-crypto_mac = {path = "../crypto-mac", default-features = false}
+crypto_digest = {path = "../crypto-digest"}
+crypto_bytes = {path = "../crypto-bytes"}
+crypto_mac = {path = "../crypto-mac"}
 
 #[dev-dependencies]
-#md5 = {path = "../../hash/md5", default-features = false}
+#md5 = {path = "../../hash/md5"}
 
 [features]
 default = ["use-std"]
-use-std = ["crypto_bytes/use-std", "crypto_digest/use-std", "crypto_mac/use-std"]
+use-std = []

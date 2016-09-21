@@ -1,6 +1,3 @@
-#[cfg(feature = "std")]
-use std as core;
-#[cfg(not(feature = "std"))]
 use core;
 
 use super::{add_bytes_to_bits, add_bytes_to_bits_tuple};
