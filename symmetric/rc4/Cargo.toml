@@ -5,5 +5,5 @@ authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
-crypto_buffers = {path = "../utils/crypto-buffers"}
-crypto_symmetric = {path = "../utils/crypto-symmetric"}
+crypto_buffers = {path = "../../utils/crypto-buffers"}
+crypto_symmetric = {path = "../../utils/crypto-symmetric"}

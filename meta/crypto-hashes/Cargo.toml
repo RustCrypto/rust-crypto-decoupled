@@ -1,0 +1,20 @@
+[package]
+name = "crypto_hashes"
+version = "0.0.0"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+blake2 = {path = "../../hash/blake2"}
+md5 = {path = "../../hash/md5"}
+ripemd160 = {path = "../../hash/ripemd160"}
+sha1 = {path = "../../hash/sha1"}
+sha2 = {path = "../../hash/sha2"}
+sha3 = {path = "../../hash/sha3"}
+whirlpool = {path = "../../hash/whirlpool"}
+
+crypto_digest = {path = "../../utils/crypto-digest"}
+
+# [features]
+# default = ["std"]
+# std = []

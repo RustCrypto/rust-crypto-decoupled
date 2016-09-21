@@ -9,9 +9,3 @@ pub extern crate ripemd160;
 pub extern crate whirlpool;
 
 pub extern crate crypto_digest;
-
-pub extern crate ghash;
-pub extern crate poly1305;
-
-pub extern crate bcrypt;
-pub extern crate sosemanuk;

@@ -1,0 +1,16 @@
+[package]
+name = "symmetric_ciphers"
+version = "0.0.0"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+blowfish = {path = "../../symmetric/blowfish"}
+sosemanuk = {path = "../../symmetric/sosemanuk"}
+rc4 = {path = "../../symmetric/rc4"}
+
+crypto_symmetric = {path = "../../utils/crypto-symmetric"}
+
+# [features]
+# default = ["std"]
+# std = []
