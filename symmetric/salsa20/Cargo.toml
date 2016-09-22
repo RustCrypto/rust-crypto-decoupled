@@ -1,0 +1,15 @@
+[package]
+name = "salsa20"
+version = "0.0.0"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+crypto_buffers = {path = "../../utils/crypto-buffers"}
+crypto_bytes = {path = "../../utils/crypto-bytes"}
+crypto_symmetric = {path = "../../utils/crypto-symmetric"}
+simd = {path = "../../simd"}
+
+[dev-dependencies]
+sha2 = {path = "../../hash/sha2"}
+crypto_digest = {path = "../../utils/crypto-digest"}

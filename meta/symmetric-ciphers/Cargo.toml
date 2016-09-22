@@ -7,6 +7,7 @@ license = "MIT/Apache-2.0"
 [dependencies]
 blowfish = {path = "../../symmetric/blowfish"}
 sosemanuk = {path = "../../symmetric/sosemanuk"}
+salsa20 = {path = "../../symmetric/salsa20"}
 rc4 = {path = "../../symmetric/rc4"}
 
 crypto_symmetric = {path = "../../utils/crypto-symmetric"}
