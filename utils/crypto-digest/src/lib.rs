@@ -1,10 +1,5 @@
 #![no_std]
 
-// Small crutch until type level integers are here
-// Max hash size is equal to 512 bits, but to test sha3 extendable output function
-// we need 512 bytes
-pub const MAX_DIGEST_SIZE: usize = 512;
-
 /// The Digest trait specifies an interface common to digest functions, such as
 /// SHA-1 and the SHA-2 family of digest functions.
 pub trait Digest {

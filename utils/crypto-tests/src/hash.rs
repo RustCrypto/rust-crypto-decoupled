@@ -1,4 +1,8 @@
-use crypto_digest::{Digest, MAX_DIGEST_SIZE};
+use crypto_digest::Digest;
+
+// Max hash size is equal to 512 bits, but to test sha3 extendable output function
+// we need 512 bytes
+pub const MAX_DIGEST_SIZE: usize = 512;
 
 pub struct Test {
     pub name: &'static str,
