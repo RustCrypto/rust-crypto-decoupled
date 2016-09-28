@@ -7,12 +7,14 @@ license = "MIT/Apache-2.0"
 [dependencies]
 blowfish = {path = "../../symmetric/blowfish"}
 chacha20 = {path = "../../symmetric/chacha20"}
+chacha20poly1305 = {path = "../../symmetric/chacha20poly1305"}
 hc128 = {path = "../../symmetric/hc128"}
-sosemanuk = {path = "../../symmetric/sosemanuk"}
-salsa20 = {path = "../../symmetric/salsa20"}
 rc4 = {path = "../../symmetric/rc4"}
+salsa20 = {path = "../../symmetric/salsa20"}
+sosemanuk = {path = "../../symmetric/sosemanuk"}
 
 crypto_symmetric = {path = "../../utils/crypto-symmetric"}
+crypto_aead = {path = "../../utils/crypto-aead"}
 
 # [features]
 # default = ["std"]
