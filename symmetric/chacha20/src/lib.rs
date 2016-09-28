@@ -105,7 +105,10 @@ impl ChaCha20 {
         //  * (x0, x1, x2, x3) is the ChaCha20 constant.
         //  * (x4, x5, ... x11) is a 256 bit key.
         //  * (x12, x13, x14, x15) is a 128 bit nonce.
-        let mut xchacha20 = ChaCha20{ state: ChaCha20::expand(key, &nonce[0..16]), output: [0u8; 64], offset: 64 };
+        let mut xchacha20 = ChaCha20{
+            state: ChaCha20::expand(key, &nonce[0..16]),
+            output: [0u8; 64],
+            offset: 64 };
 
         // Use HChaCha to derive the subkey, and initialize a ChaCha20 instance
         // with the subkey and the remaining 8 bytes of the nonce.
@@ -256,7 +259,8 @@ impl SynchronousStreamCipher for ChaCha20 {
 
             // Process the min(available keystream, remaining input length).
             let count = cmp::min(64 - self.offset, len - i);
-            xor_keystream(&mut output[i..i+count], &input[i..i+count], &self.output[self.offset..]);
+            xor_keystream(&mut output[i..i+count], &input[i..i+count],
+                &self.output[self.offset..]);
             i += count;
             self.offset += count;
         }
@@ -277,8 +281,8 @@ impl Decryptor for ChaCha20 {
     }
 }
 
-//#[cfg(test)]
-//mod tests;
+#[cfg(test)]
+mod tests;
 
 #[cfg(test)]
 mod bench;
