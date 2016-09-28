@@ -1,0 +1,14 @@
+[package]
+name = "chacha20poly1305"
+version = "0.0.0"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+crypto_aead =  {path = "../../utils/crypto-aead"}
+crypto_bytes = {path = "../../utils/crypto-bytes"}
+crypto_symmetric = {path = "../../utils/crypto-symmetric"}
+crypto_mac = {path = "../../utils/crypto-mac"}
+crypto_ops = {path = "../../utils/crypto-ops"}
+chacha20 = {path = "../../symmetric/chacha20"}
+poly1305 = {path = "../../etc/poly1305"}

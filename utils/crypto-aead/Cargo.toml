@@ -1,0 +1,5 @@
+[package]
+name = "crypto_aead"
+version = "0.0.0"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
