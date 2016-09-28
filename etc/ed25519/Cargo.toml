@@ -1,0 +1,11 @@
+[package]
+name = "ed25519"
+version = "0.0.0"
+authors = ["The Rust-Crypto Project Developers"]
+license = "MIT/Apache-2.0"
+
+[dependencies]
+crypto_ops = {path = "../../utils/crypto-ops"}
+crypto_digest = {path = "../../utils/crypto-digest"}
+curve25519 = {path = "../../etc/curve25519"}
+sha2 = {path = "../../hash/sha2"}
