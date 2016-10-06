@@ -14,6 +14,6 @@ fn ripemd160_main() {
 
 #[test]
 fn ripemd160_1million_a() {
-    let output = include_bytes!("data/one_million_a.output");
+    let output = include_bytes!("data/one_million_a.output.bin");
     one_million_a::<ripemd160::Ripemd160>(output);
 }

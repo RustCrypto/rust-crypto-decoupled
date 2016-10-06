@@ -1,5 +1,5 @@
 #![no_std]
-extern crate byte_utils;
+extern crate byte_tools;
 extern crate generic_array;
 use generic_array::{GenericArray, ArrayLength};
 use byte_tools::{copy_memory, zero};

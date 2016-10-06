@@ -12,8 +12,8 @@ macro_rules! new_tests {
         [$(
             Test {
                 name: $name,
-                input: include_bytes!(concat!("data/", $name, ".input")),
-                output: include_bytes!(concat!("data/", $name, ".output")),
+                input: include_bytes!(concat!("data/", $name, ".input.bin")),
+                output: include_bytes!(concat!("data/", $name, ".output.bin")),
             },
         )*]
     };

@@ -4,10 +4,9 @@ version = "0.1.0"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 description = "Fixed size buffer for use in cryptographic hash functions"
-documentation = "https://docs.rs/crate/digest-buffer"
+documentation = "https://docs.rs/digest-buffer"
 repository = "https://github.com/RustCrypto/rust-crypto-decoupled"
 keywords = ["buffer", "digest"]
-
 
 [dependencies]
 byte-tools = "0.1"

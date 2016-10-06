@@ -1,13 +1,13 @@
 #![no_std]
 #![feature(step_by)]
 extern crate generic_array;
-extern crate simd;
+extern crate simd_alt as simd;
 extern crate byte_tools;
 extern crate digest;
 extern crate digest_buffer;
 
+pub use digest::Digest;
 use byte_tools::{write_u32_le, read_u32v_le};
-use digest::Digest;
 use digest_buffer::{DigestBuffer};
 use simd::u32x4;
 use generic_array::GenericArray;

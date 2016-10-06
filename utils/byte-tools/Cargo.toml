@@ -4,6 +4,6 @@ version = "0.1.0"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 description = "Utility functions for working with bytes"
-documentation = "https://docs.rs/crate/byte-tools"
+documentation = "https://docs.rs/byte-tools"
 repository = "https://github.com/RustCrypto/rust-crypto-decoupled"
 keywords = ["bytes"]

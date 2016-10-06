@@ -14,6 +14,6 @@ fn md5_main() {
 
 #[test]
 fn md5_1million_a() {
-    let output = include_bytes!("data/one_million_a.output");
+    let output = include_bytes!("data/one_million_a.output.bin");
     one_million_a::<md5::Md5>(output);
 }

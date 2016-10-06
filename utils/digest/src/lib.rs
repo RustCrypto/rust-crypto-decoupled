@@ -16,7 +16,7 @@ pub trait Digest : Default {
     /// for use with streaming messages.
     fn input(&mut self, input: &[u8]);
 
-    /// Retrieve the digest result. This method consumes digest instance
+    /// Retrieve the digest result. This method consumes digest instance.
     fn result(self) -> GenericArray<u8, Self::N>;
 
     /// Get the block size in bytes.

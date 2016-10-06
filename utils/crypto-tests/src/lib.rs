@@ -1,4 +1,4 @@
 #![no_std]
-extern crate crypto_digest;
+extern crate digest;
 
 pub mod hash;

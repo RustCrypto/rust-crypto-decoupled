@@ -12,13 +12,13 @@
 
 #![no_std]
 extern crate generic_array;
-extern crate crypto_bytes;
-extern crate crypto_digest;
-extern crate crypto_fixed_buffer;
+extern crate byte_tools;
+extern crate digest;
+extern crate digest_buffer;
 
-use crypto_bytes::{write_u32_le, read_u32v_le, add_bytes_to_bits};
-use crypto_digest::Digest;
-use crypto_fixed_buffer::{FixedBuffer};
+pub use digest::Digest;
+use byte_tools::{write_u32_le, read_u32v_le, add_bytes_to_bits};
+use digest_buffer::{DigestBuffer};
 use generic_array::GenericArray;
 use generic_array::typenum::{U20, U64};
 
@@ -31,7 +31,7 @@ const WORK_BUF_LEN: usize = 16;
 pub struct Ripemd160 {
     h: [u32; DIGEST_BUF_LEN],
     length_bits: u64,
-    buffer: FixedBuffer<U64>,
+    buffer: DigestBuffer<U64>,
 }
 
 fn circular_shift(bits: u32, word: u32) -> u32 {

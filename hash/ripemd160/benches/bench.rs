@@ -2,11 +2,9 @@
 #![feature(test)]
 extern crate test;
 extern crate ripemd160;
-extern crate crypto_digest;
 
 use test::Bencher;
-use crypto_digest::Digest;
-use ripemd160::Ripemd160;
+use ripemd160::{Ripemd160, Digest};
 
 
 #[bench]

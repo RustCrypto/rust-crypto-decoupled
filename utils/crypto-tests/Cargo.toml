@@ -1,8 +1,12 @@
 [package]
 name = "crypto-tests"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
+description = "Test helpers for cryptographic algorithms"
+documentation = "https://docs.rs/crypto-tests"
+repository = "https://github.com/RustCrypto/rust-crypto-decoupled"
+keywords = ["crypto", "tests"]
 
 [dependencies]
-digest = {path = "../digest"}
+digest = "0.1"
