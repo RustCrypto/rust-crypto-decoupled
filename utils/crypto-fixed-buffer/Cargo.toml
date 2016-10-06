@@ -1,9 +1,0 @@
-[package]
-name = "crypto_fixed_buffer"
-version = "0.0.0"
-authors = ["The Rust-Crypto Project Developers"]
-license = "MIT/Apache-2.0"
-
-[dependencies]
-crypto_bytes = {path = "../crypto-bytes"}
-generic-array = "0.5"

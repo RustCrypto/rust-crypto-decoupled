@@ -1,18 +1,18 @@
 #![no_std]
-extern crate crypto_bytes;
+extern crate byte_utils;
 extern crate generic_array;
 use generic_array::{GenericArray, ArrayLength};
-use crypto_bytes::{copy_memory, zero};
+use byte_utils::{copy_memory, zero};
 
 #[derive(Clone)]
-pub struct FixedBuffer<N: ArrayLength<u8>> {
+pub struct DigestBuffer<N: ArrayLength<u8>> {
     buffer: GenericArray<u8, N>,
     buffer_idx: usize,
 }
 
-impl <N: ArrayLength<u8>> FixedBuffer<N> {
-    pub fn new() -> FixedBuffer<N> {
-        FixedBuffer::<N> {
+impl <N: ArrayLength<u8>> DigestBuffer<N> {
+    pub fn new() -> DigestBuffer<N> {
+        DigestBuffer::<N> {
             buffer: GenericArray::new(),
             buffer_idx: 0,
         }
@@ -107,6 +107,6 @@ impl <N: ArrayLength<u8>> FixedBuffer<N> {
     }
 }
 
-impl <N: ArrayLength<u8>> Default for FixedBuffer<N> {
+impl <N: ArrayLength<u8>> Default for DigestBuffer<N> {
     fn default() -> Self { Self::new() }
 }
