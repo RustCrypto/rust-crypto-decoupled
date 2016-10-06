@@ -6,7 +6,7 @@ license = "MIT/Apache-2.0"
 description = "Whirlpool hash function"
 documentation = "https://docs.rs/whirlpool"
 repository = "https://github.com/RustCrypto/rust-crypto-decoupled"
-keywords = ["crypto", "whirlpool ", "hash", "digest"]
+keywords = ["crypto", "whirlpool", "hash", "digest"]
 
 [dependencies]
 byte-tools = "0.1"
