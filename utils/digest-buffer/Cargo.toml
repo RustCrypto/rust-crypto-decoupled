@@ -10,5 +10,5 @@ keywords = ["buffer", "digest"]
 
 
 [dependencies]
-byte_utils = "0.1"
+byte-tools = "0.1"
 generic-array = "0.5"

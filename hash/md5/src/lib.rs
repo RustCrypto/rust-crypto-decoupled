@@ -2,13 +2,13 @@
 #![feature(step_by)]
 extern crate generic_array;
 extern crate simd;
-extern crate crypto_bytes;
-extern crate crypto_digest;
-extern crate crypto_fixed_buffer;
+extern crate byte_tools;
+extern crate digest;
+extern crate digest_buffer;
 
-use crypto_bytes::{write_u32_le, read_u32v_le};
-use crypto_digest::Digest;
-use crypto_fixed_buffer::{FixedBuffer};
+use byte_tools::{write_u32_le, read_u32v_le};
+use digest::Digest;
+use digest_buffer::{DigestBuffer};
 use simd::u32x4;
 use generic_array::GenericArray;
 use generic_array::typenum::{U16, U64};
@@ -131,7 +131,7 @@ impl Md5State {
 #[derive(Clone)]
 pub struct Md5 {
     length_bytes: u64,
-    buffer: FixedBuffer<U64>,
+    buffer: DigestBuffer<U64>,
     state: Md5State,
 }
 

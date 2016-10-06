@@ -1,16 +1,15 @@
 [package]
 name = "md5"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
-simd = {path = "../../simd"}
-crypto_bytes = {path = "../../utils/crypto-bytes"}
-crypto_digest = {path = "../../utils/crypto-digest"}
-crypto_fixed_buffer = {path = "../../utils/crypto-fixed-buffer"}
+simd = {git = "https://github.com/RustCrypto/simd.git", rev = "cd45b251"}
+byte-tools = "0.1"
+digest = "0.1"
+digest-buffer = "0.1"
 generic-array = "0.5"
 
 [dev-dependencies]
-crypto_tests = {path = "../../utils/crypto-tests"}
-
+crypto-tests = {path = "../../utils/crypto-tests"}

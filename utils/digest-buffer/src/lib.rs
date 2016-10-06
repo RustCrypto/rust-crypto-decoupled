@@ -2,7 +2,7 @@
 extern crate byte_utils;
 extern crate generic_array;
 use generic_array::{GenericArray, ArrayLength};
-use byte_utils::{copy_memory, zero};
+use byte_tools::{copy_memory, zero};
 
 #[derive(Clone)]
 pub struct DigestBuffer<N: ArrayLength<u8>> {

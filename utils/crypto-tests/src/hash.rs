@@ -1,4 +1,4 @@
-use crypto_digest::Digest;
+use digest::Digest;
 
 pub struct Test {
     pub name: &'static str,

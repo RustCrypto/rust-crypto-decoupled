@@ -2,10 +2,10 @@
 #![feature(test)]
 extern crate test;
 extern crate md5;
-extern crate crypto_digest;
+extern crate digest;
 
 use test::Bencher;
-use crypto_digest::Digest;
+use digest::Digest;
 use md5::Md5;
 
 
