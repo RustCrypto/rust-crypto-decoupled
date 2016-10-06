@@ -9,25 +9,25 @@
 //! the `result` or `result_str` methods. The first will return bytes, and
 //! the second will return a `String` object of the same bytes represented
 //! in hexadecimal form.
-
+//! 
 //! The `Sha1` object may be reused to create multiple hashes by calling
 //! the `reset()` method. These traits are implemented by all hash digest
 //! algorithms that implement the `Digest` trait. An example of use is:
-
-//! ```rust, ignore3
-//! use self::crypto::digest::Digest;
-//! use self::crypto::sha1::Sha1;
+//! 
+//! ```rust
+//! use sha1::{Sha1, Digest};
 //!
 //! // create a Sha1 object
-//! let mut hasher = Sha1::new();
+//! let mut sh = Sha1::new();
 //! 
 //! // write input message
-//! hasher.input_str("hello world");
+//! sh.input(b"hello world");
 //!
-//! // read hash digest
-//! let hex = hasher.result_str();
-//!
-//! assert_eq!(hex, "2aae6c35c94fcfb415dbe95f408b9ce91ee846ed");
+//! // read hash digest in the form of GenericArray which is in this case
+//! // equivalent to [u8; 20]
+//! let output = sh.result();
+//! assert_eq!(output[..], [0x2au8, 0xae, 0x6c, 0x35, 0xc9, 0x4f, 0xcf, 0xb4, 0x15,
+//!         0xdb, 0xe9, 0x5f, 0x40, 0x8b, 0x9c, 0xe9, 0x1e, 0xe8, 0x46, 0xed])
 //! ```
 //!
 //! # Mathematics
@@ -48,17 +48,16 @@
 //! Some of these functions are commonly found in all hash digest
 //! algorithms, but some, like "parity" is only found in SHA-1.
 
-
 #![no_std]
 extern crate generic_array;
-extern crate crypto_bytes;
-extern crate crypto_digest;
-extern crate crypto_fixed_buffer;
-extern crate simd;
+extern crate byte_tools;
+extern crate digest;
+extern crate digest_buffer;
+extern crate simd_alt as simd;
 
-use crypto_digest::Digest;
-use crypto_bytes::{write_u32_be, read_u32v_be, add_bytes_to_bits};
-use crypto_fixed_buffer::FixedBuffer;
+pub use digest::Digest;
+use byte_tools::{write_u32_be, read_u32v_be, add_bytes_to_bits};
+use digest_buffer::DigestBuffer;
 use simd::u32x4;
 use generic_array::GenericArray;
 use generic_array::typenum::{U20, U64};
@@ -362,13 +361,12 @@ pub fn sha1_digest_block(state: &mut [u32; 5], block: &[u8]) {
     sha1_digest_block_u32(state, &block2);
 }
 
-
 /// Structure representing the state of a Sha1 computation
 #[derive(Clone)]
 pub struct Sha1 {
     h: [u32; STATE_LEN],
     length_bits: u64,
-    buffer: FixedBuffer<U64>,
+    buffer: DigestBuffer<U64>,
 }
 
 impl Sha1 {

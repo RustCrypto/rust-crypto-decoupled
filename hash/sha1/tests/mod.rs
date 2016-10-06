@@ -14,6 +14,6 @@ fn sha1_main() {
 
 #[test]
 fn sha1_1million_a() {
-    let output = include_bytes!("data/one_million_a.output");
+    let output = include_bytes!("data/one_million_a.output.bin");
     one_million_a::<sha1::Sha1>(output);
 }

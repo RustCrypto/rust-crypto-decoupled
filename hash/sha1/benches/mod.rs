@@ -2,11 +2,9 @@
 #![feature(test)]
 extern crate test;
 extern crate sha1;
-extern crate crypto_digest;
 
 use test::Bencher;
-use crypto_digest::Digest;
-use sha1::{Sha1, sha1_digest_block_u32};
+use sha1::{Sha1, sha1_digest_block_u32, Digest};
 
 // Copied from src/lib.rs
 const STATE_LEN: usize = 5;
