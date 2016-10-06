@@ -16,6 +16,6 @@ fn whirlpool_main() {
 
 #[test]
 fn whirlpool_1million_a() {
-    let output = include_bytes!("data/one_million_a.output");
+    let output = include_bytes!("data/one_million_a.output.bin");
     one_million_a::<whirlpool::Whirlpool>(output);
 }

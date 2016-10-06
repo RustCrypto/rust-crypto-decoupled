@@ -13,33 +13,25 @@
 //!
 //! # Usage
 //! 
-//! ```rust,ignore
-//! extern crate crypto_digest;
-//! use whirlpool::Whirlpool;
-//! use crypto_digest::Digest;
+//! ```rust
+//! use whirlpool::{Whirlpool, Digest};
 //!
 //! let mut hasher = Whirlpool::new();
-//! hasher.input_str("Hello Whirlpool");
-//! let result = hasher.result_str();
-//! 
-//! assert_eq!(result,
-//! concat!("8eaccdc136903c458ea0b1376be2a5fc",
-//!         "9dc5b8ce8892a3b4f43366e2610c206c",
-//!         "a373816495e63db0fff2ff25f75aa716",
-//! "2f332c9f518c3036456502a8414d300a"));
+//! hasher.input(b"Hello Whirlpool");
+//! let result = hasher.result();
 //! ```
 
 #![no_std]
 extern crate generic_array;
-extern crate crypto_bytes;
-extern crate crypto_digest;
-extern crate crypto_fixed_buffer;
+extern crate byte_tools;
+extern crate digest;
+extern crate digest_buffer;
 
 use core::mem::uninitialized;
 
-use crypto_bytes::write_u64v_be;
-use crypto_fixed_buffer::FixedBuffer;
-use crypto_digest::Digest;
+pub use digest::Digest;
+use byte_tools::write_u64v_be;
+use digest_buffer::DigestBuffer;
 use generic_array::GenericArray;
 use generic_array::typenum::U64;
 
@@ -49,7 +41,7 @@ use consts::*;
 #[derive(Clone)]
 pub struct Whirlpool {
     bit_length: [u8; 32],
-    buffer: FixedBuffer<U64>,
+    buffer: DigestBuffer<U64>,
     hash: [u64; 8],
 }
 

@@ -2,12 +2,9 @@
 #![feature(test)]
 extern crate test;
 extern crate whirlpool;
-extern crate crypto_digest;
 
 use test::Bencher;
-use crypto_digest::Digest;
-use whirlpool::Whirlpool;
-
+use whirlpool::{Whirlpool, Digest};
 
 #[bench]
 pub fn whirlpool_10(bh: &mut Bencher) {
