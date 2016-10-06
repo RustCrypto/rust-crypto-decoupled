@@ -69,6 +69,7 @@
 #![no_std]
 #![feature(test)]
 extern crate test;
+extern crate generic_array;
 extern crate crypto_bytes;
 extern crate crypto_digest;
 extern crate crypto_fixed_buffer;
@@ -85,6 +86,9 @@ use crypto_fixed_buffer::{FixedBuffer, FixedBuffer128, FixedBuffer64,
 
 use simd::u32x4;
 use simd::sixty_four::u64x2;
+
+use generic_array::GenericArray;
+use generic_array::typenum::{U16, U64, Unsigned};
 
 mod consts;
 use consts::{STATE_LEN, BLOCK_LEN, K32X4, K64X2,

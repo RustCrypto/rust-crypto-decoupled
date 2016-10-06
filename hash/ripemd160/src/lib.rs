@@ -11,36 +11,33 @@
 //! calling the `reset` method.
 
 #![no_std]
-#![feature(test)]
-
-extern crate test;
+extern crate generic_array;
 extern crate crypto_bytes;
 extern crate crypto_digest;
 extern crate crypto_fixed_buffer;
-#[cfg(test)]
-#[macro_use]
-extern crate crypto_tests;
 
 use crypto_bytes::{write_u32_le, read_u32v_le, add_bytes_to_bits};
 use crypto_digest::Digest;
-use crypto_fixed_buffer::{FixedBuffer, FixedBuffer64, StandardPadding};
+use crypto_fixed_buffer::{FixedBuffer};
+use generic_array::GenericArray;
+use generic_array::typenum::{U20, U64};
 
 // Some unexported constants
 const DIGEST_BUF_LEN: usize = 5;
 const WORK_BUF_LEN: usize = 16;
 
 /// Structure representing the state of a Ripemd160 computation
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Ripemd160 {
     h: [u32; DIGEST_BUF_LEN],
     length_bits: u64,
-    buffer: FixedBuffer64,
-    computed: bool,
+    buffer: FixedBuffer<U64>,
 }
 
 fn circular_shift(bits: u32, word: u32) -> u32 {
     word << bits as usize | word >> (32u32 - bits) as usize
 }
+
 macro_rules! round(
     ($a:expr, $b:expr, $c:expr, $d:expr, $e:expr,
      $x:expr, $bits:expr, $add:expr, $round:expr) => ({
@@ -330,78 +327,53 @@ fn process_msg_block(data: &[u8], h: &mut [u32; DIGEST_BUF_LEN]) {
 impl Ripemd160 {
     /// Construct a `Ripemd` object
     pub fn new() -> Ripemd160 {
-        let mut st = Ripemd160 {
-            h: [0u32; DIGEST_BUF_LEN],
-            length_bits: 0u64,
-            buffer: FixedBuffer64::new(),
-            computed: false,
-        };
-        st.reset();
-        st
+        Ripemd160 {
+            h: [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0],
+            length_bits: 0,
+            buffer: Default::default(),
+        }
+    }
+
+    fn finalize(&mut self) {
+        let st_h = &mut self.h;
+        self.buffer.standard_padding(8, |d: &[u8]| {
+            process_msg_block(d, &mut *st_h)
+        });
+
+        write_u32_le(self.buffer.next(4), self.length_bits as u32);
+        write_u32_le(self.buffer.next(4), (self.length_bits >> 32) as u32);
+        process_msg_block(self.buffer.full_buffer(), st_h);
     }
 }
 
-impl Digest for Ripemd160 {
-    /// Resets the hash to its original state also clearing the buffer.
-    /// To be used in between hashing separate messages to avoid having
-    /// to recreate and allocate the whole structure.
-    fn reset(&mut self) {
-        self.length_bits = 0;
-        self.h[0] = 0x67452301u32;
-        self.h[1] = 0xefcdab89u32;
-        self.h[2] = 0x98badcfeu32;
-        self.h[3] = 0x10325476u32;
-        self.h[4] = 0xc3d2e1f0u32;
-        self.buffer.reset();
-        self.computed = false;
-    }
+impl Default for Ripemd160 {
+    fn default() -> Self { Self::new() }
+}
 
-    /// Adds the input `msg` to the hash. This method can be called repeatedly
-    /// for use with streaming messages.
-    fn input(&mut self, msg: &[u8]) {
-        assert!(!self.computed);
-        // Assumes that msg.len() can be converted to u64 without overflow
+impl Digest for Ripemd160 {
+    type N = U20;
+
+    fn input(&mut self, input: &[u8]) {
+        // Assumes that input.len() can be converted to u64 without overflow
         self.length_bits = add_bytes_to_bits(self.length_bits,
-                                             msg.len() as u64);
+                                             input.len() as u64);
         let st_h = &mut self.h;
-        self.buffer.input(msg, |d: &[u8]| {
+        self.buffer.input(input, |d: &[u8]| {
             process_msg_block(d, &mut *st_h);
         });
     }
 
-    /// Returns the resulting digest of the entire message.
-    /// Note: `out` must be at least 20 bytes (160 bits)
-    fn result(&mut self, out: &mut [u8]) {
+    fn result(mut self) -> GenericArray<u8, Self::N> {
+        self.finalize();
 
-        if !self.computed {
-            let st_h = &mut self.h;
-            self.buffer.standard_padding(8, |d: &[u8]| {
-                process_msg_block(d, &mut *st_h)
-            });
-
-            write_u32_le(self.buffer.next(4), self.length_bits as u32);
-            write_u32_le(self.buffer.next(4), (self.length_bits >> 32) as u32);
-            process_msg_block(self.buffer.full_buffer(), st_h);
-
-            self.computed = true;
-        }
-
+        let mut out = GenericArray::new();
         write_u32_le(&mut out[0..4], self.h[0]);
         write_u32_le(&mut out[4..8], self.h[1]);
         write_u32_le(&mut out[8..12], self.h[2]);
         write_u32_le(&mut out[12..16], self.h[3]);
         write_u32_le(&mut out[16..20], self.h[4]);
+        out
     }
 
-    /// Returns the size of the digest in bits
-    fn output_bytes(&self) -> usize { 20 }
-
-    /// Returns the block size the hash operates on in bytes
-    fn block_size(&self) -> usize { 64 }
+    fn block_size(&self) -> usize { self.buffer.size() }
 }
-
-#[cfg(test)]
-mod tests;
-
-#[cfg(test)]
-mod bench;

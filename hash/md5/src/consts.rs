@@ -1,3 +1,5 @@
+use simd::u32x4;
+
 // Round 1 constants
 pub static C1: [u32; 16] = [0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
                             0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501,
@@ -22,7 +24,4 @@ pub static C4: [u32; 16] = [0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039,
                             0x6fa87e4f, 0xfe2ce6e0, 0xa3014314, 0x4e0811a1,
                             0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391];
 
-pub const S0: u32 = 0x67452301;
-pub const S1: u32 = 0xefcdab89;
-pub const S2: u32 = 0x98badcfe;
-pub const S3: u32 = 0x10325476;
+pub const S: u32x4 = u32x4(0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476);

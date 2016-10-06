@@ -8,6 +8,7 @@ license = "MIT/Apache-2.0"
 crypto_bytes = {path = "../../utils/crypto-bytes"}
 crypto_digest = {path = "../../utils/crypto-digest"}
 crypto_fixed_buffer = {path = "../../utils/crypto-fixed-buffer"}
+generic-array = "0.5"
 
 [dev-dependencies]
 crypto_tests = {path = "../../utils/crypto-tests"}

@@ -1,47 +1,33 @@
 #![no_std]
 #![feature(step_by)]
-#![feature(test)]
-extern crate test;
+extern crate generic_array;
+extern crate simd;
 extern crate crypto_bytes;
 extern crate crypto_digest;
 extern crate crypto_fixed_buffer;
-#[cfg(test)]
-#[macro_use]
-extern crate crypto_tests;
 
 use crypto_bytes::{write_u32_le, read_u32v_le};
 use crypto_digest::Digest;
-use crypto_fixed_buffer::{FixedBuffer, FixedBuffer64, StandardPadding};
+use crypto_fixed_buffer::{FixedBuffer};
+use simd::u32x4;
+use generic_array::GenericArray;
+use generic_array::typenum::{U16, U64};
+
 
 mod consts;
-use consts::{C1, C2, C3, C4};
+use consts::{C1, C2, C3, C4, S};
 
 /// A structure that represents that state of a digest computation for the MD5
 /// digest function
 #[derive(Clone, Copy)]
 struct Md5State {
-    s0: u32,
-    s1: u32,
-    s2: u32,
-    s3: u32,
+    s: u32x4,
 }
 
 
 impl Md5State {
     fn new() -> Md5State {
-        Md5State {
-            s0: consts::S0,
-            s1: consts::S1,
-            s2: consts::S2,
-            s3: consts::S3,
-        }
-    }
-
-    fn reset(&mut self) {
-        self.s0 = consts::S0;
-        self.s1 = consts::S1;
-        self.s2 = consts::S2;
-        self.s3 = consts::S3;
+        Md5State { s: S }
     }
 
     fn process_block(&mut self, input: &[u8]) {
@@ -81,10 +67,7 @@ impl Md5State {
                 .wrapping_add(x)
         }
 
-        let mut a = self.s0;
-        let mut b = self.s1;
-        let mut c = self.s2;
-        let mut d = self.s3;
+        let u32x4(mut a, mut b, mut c, mut d) = self.s;
 
         let mut data = [0u32; 16];
 
@@ -140,20 +123,16 @@ impl Md5State {
             t += 28;
         }
 
-        self.s0 = self.s0.wrapping_add(a);
-        self.s1 = self.s1.wrapping_add(b);
-        self.s2 = self.s2.wrapping_add(c);
-        self.s3 = self.s3.wrapping_add(d);
+        self.s = self.s + u32x4(a, b, c, d);
     }
 }
 
 /// The MD5 Digest algorithm
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Md5 {
     length_bytes: u64,
-    buffer: FixedBuffer64,
+    buffer: FixedBuffer<U64>,
     state: Md5State,
-    finished: bool,
 }
 
 impl Md5 {
@@ -161,10 +140,19 @@ impl Md5 {
     pub fn new() -> Md5 {
         Md5 {
             length_bytes: 0,
-            buffer: FixedBuffer64::new(),
+            buffer: Default::default(),
             state: Md5State::new(),
-            finished: false,
         }
+    }
+
+    fn finalize(&mut self) {
+        let self_state = &mut self.state;
+        self.buffer.standard_padding(8, |d: &[u8]| {
+            self_state.process_block(d);
+        });
+        write_u32_le(self.buffer.next(4), (self.length_bytes << 3) as u32);
+        write_u32_le(self.buffer.next(4), (self.length_bytes >> 29) as u32);
+        self_state.process_block(self.buffer.full_buffer());
     }
 }
 
@@ -173,8 +161,9 @@ impl Default for Md5 {
 }
 
 impl Digest for Md5 {
+    type N = U16;
+
     fn input(&mut self, input: &[u8]) {
-        assert!(!self.finished);
         // Unlike Sha1 and Sha2, the length value in MD5 is defined as
         // the length of the message mod 2^64 - ie: integer overflow is OK.
         self.length_bytes += input.len() as u64;
@@ -184,38 +173,16 @@ impl Digest for Md5 {
         });
     }
 
-    fn reset(&mut self) {
-        self.length_bytes = 0;
-        self.buffer.reset();
-        self.state.reset();
-        self.finished = false;
+    fn result(mut self) -> GenericArray<u8, Self::N> {
+        self.finalize();
+
+        let mut out = GenericArray::new();
+        write_u32_le(&mut out[0..4], self.state.s.0);
+        write_u32_le(&mut out[4..8], self.state.s.1);
+        write_u32_le(&mut out[8..12], self.state.s.2);
+        write_u32_le(&mut out[12..16], self.state.s.3);
+        out
     }
 
-    fn result(&mut self, out: &mut [u8]) {
-        if !self.finished {
-            let self_state = &mut self.state;
-            self.buffer.standard_padding(8, |d: &[u8]| {
-                self_state.process_block(d);
-            });
-            write_u32_le(self.buffer.next(4), (self.length_bytes << 3) as u32);
-            write_u32_le(self.buffer.next(4), (self.length_bytes >> 29) as u32);
-            self_state.process_block(self.buffer.full_buffer());
-            self.finished = true;
-        }
-
-        write_u32_le(&mut out[0..4], self.state.s0);
-        write_u32_le(&mut out[4..8], self.state.s1);
-        write_u32_le(&mut out[8..12], self.state.s2);
-        write_u32_le(&mut out[12..16], self.state.s3);
-    }
-
-    fn output_bytes(&self) -> usize { 16 }
-
-    fn block_size(&self) -> usize { 64 }
+    fn block_size(&self) -> usize { self.buffer.size() }
 }
-
-#[cfg(test)]
-mod tests;
-
-#[cfg(test)]
-mod bench;

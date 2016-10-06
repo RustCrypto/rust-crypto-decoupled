@@ -50,20 +50,18 @@
 
 
 #![no_std]
-#![feature(test)]
-extern crate test;
+extern crate generic_array;
 extern crate crypto_bytes;
 extern crate crypto_digest;
 extern crate crypto_fixed_buffer;
 extern crate simd;
-#[cfg(test)]
-#[macro_use]
-extern crate crypto_tests;
 
 use crypto_digest::Digest;
 use crypto_bytes::{write_u32_be, read_u32v_be, add_bytes_to_bits};
-use crypto_fixed_buffer::{FixedBuffer, FixedBuffer64, StandardPadding};
+use crypto_fixed_buffer::FixedBuffer;
 use simd::u32x4;
+use generic_array::GenericArray;
+use generic_array::typenum::{U20, U64};
 
 const STATE_LEN: usize = 5;
 const BLOCK_LEN: usize = 16;
@@ -72,6 +70,8 @@ const K0: u32 = 0x5A827999u32;
 const K1: u32 = 0x6ED9EBA1u32;
 const K2: u32 = 0x8F1BBCDCu32;
 const K3: u32 = 0xCA62C1D6u32;
+
+const H: [u32; STATE_LEN] = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
 
 /// Not an intrinsic, but gets the first element of a vector.
 #[inline]
@@ -362,55 +362,32 @@ pub fn sha1_digest_block(state: &mut [u32; 5], block: &[u8]) {
     sha1_digest_block_u32(state, &block2);
 }
 
-fn add_input(st: &mut Sha1, msg: &[u8]) {
-    assert!((!st.computed));
-    // Assumes that msg.len() can be converted to u64 without overflow
-    st.length_bits = add_bytes_to_bits(st.length_bits, msg.len() as u64);
-    let st_h = &mut st.h;
-    st.buffer.input(msg, |d: &[u8]| {
-        sha1_digest_block(st_h, d);
-    });
-}
-
-fn mk_result(st: &mut Sha1, rs: &mut [u8]) {
-    if !st.computed {
-        let st_h = &mut st.h;
-        st.buffer
-            .standard_padding(8, |d: &[u8]| sha1_digest_block(&mut *st_h, d));
-        write_u32_be(st.buffer.next(4), (st.length_bits >> 32) as u32);
-        write_u32_be(st.buffer.next(4), st.length_bits as u32);
-        sha1_digest_block(st_h, st.buffer.full_buffer());
-
-        st.computed = true;
-    }
-
-    write_u32_be(&mut rs[0..4], st.h[0]);
-    write_u32_be(&mut rs[4..8], st.h[1]);
-    write_u32_be(&mut rs[8..12], st.h[2]);
-    write_u32_be(&mut rs[12..16], st.h[3]);
-    write_u32_be(&mut rs[16..20], st.h[4]);
-}
 
 /// Structure representing the state of a Sha1 computation
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Sha1 {
     h: [u32; STATE_LEN],
     length_bits: u64,
-    buffer: FixedBuffer64,
-    computed: bool,
+    buffer: FixedBuffer<U64>,
 }
 
 impl Sha1 {
     /// Construct a `sha` object
     pub fn new() -> Sha1 {
-        let mut st = Sha1 {
-            h: [0u32; STATE_LEN],
+        Sha1 {
+            h: H,
             length_bits: 0u64,
-            buffer: FixedBuffer64::new(),
-            computed: false,
-        };
-        st.reset();
-        st
+            buffer: Default::default(),
+        }
+    }
+
+    fn finalize(&mut self) {
+        let st_h = &mut self.h;
+        self.buffer
+            .standard_padding(8, |d: &[u8]| sha1_digest_block(&mut *st_h, d));
+        write_u32_be(self.buffer.next(4), (self.length_bits >> 32) as u32);
+        write_u32_be(self.buffer.next(4), self.length_bits as u32);
+        sha1_digest_block(st_h, self.buffer.full_buffer());
     }
 }
 
@@ -419,25 +396,28 @@ impl Default for Sha1 {
 }
 
 impl Digest for Sha1 {
-    fn reset(&mut self) {
-        self.length_bits = 0;
-        self.h[0] = 0x67452301u32;
-        self.h[1] = 0xEFCDAB89u32;
-        self.h[2] = 0x98BADCFEu32;
-        self.h[3] = 0x10325476u32;
-        self.h[4] = 0xC3D2E1F0u32;
-        self.buffer.reset();
-        self.computed = false;
+    type N = U20;
+
+    fn input(&mut self, msg: &[u8]) {
+        // Assumes that msg.len() can be converted to u64 without overflow
+        self.length_bits = add_bytes_to_bits(self.length_bits, msg.len() as u64);
+        let st_h = &mut self.h;
+        self.buffer.input(msg, |d: &[u8]| {
+            sha1_digest_block(st_h, d);
+        });
     }
-    fn input(&mut self, msg: &[u8]) { add_input(self, msg); }
-    fn result(&mut self, out: &mut [u8]) { mk_result(self, out) }
-    fn output_bytes(&self) -> usize { 20 }
-    fn block_size(&self) -> usize { 64 }
+
+    fn result(mut self) -> GenericArray<u8, Self::N> {
+        self.finalize();
+
+        let mut out = GenericArray::new();
+        write_u32_be(&mut out[0..4], self.h[0]);
+        write_u32_be(&mut out[4..8], self.h[1]);
+        write_u32_be(&mut out[8..12], self.h[2]);
+        write_u32_be(&mut out[12..16], self.h[3]);
+        write_u32_be(&mut out[16..20], self.h[4]);
+        out
+    }
+
+    fn block_size(&self) -> usize { self.buffer.size() }
 }
-
-
-#[cfg(test)]
-mod tests;
-
-#[cfg(test)]
-mod bench;

@@ -1,6 +1,12 @@
+#![no_std]
+#![feature(test)]
+extern crate test;
+extern crate whirlpool;
+extern crate crypto_digest;
+
 use test::Bencher;
 use crypto_digest::Digest;
-use super::Whirlpool;
+use whirlpool::Whirlpool;
 
 
 #[bench]

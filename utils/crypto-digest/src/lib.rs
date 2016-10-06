@@ -1,33 +1,30 @@
 #![no_std]
+extern crate generic_array;
+use generic_array::{GenericArray, ArrayLength};
+use generic_array::typenum::Unsigned;
 
-/// The Digest trait specifies an interface common to digest functions, such as
-/// SHA-1 and the SHA-2 family of digest functions.
-pub trait Digest {
-    /// Provide message data.
-    ///
-    /// # Arguments
-    ///
-    /// * input - A vector of message data
+/// The Digest trait specifies an interface common to digest functions
+pub trait Digest : Default {
+    type N: ArrayLength<u8>;
+
+    /// Create new digest instance
+    fn new() -> Self {
+        Default::default()
+    }
+
+    /// Digest input data. This method can be called repeatedly
+    /// for use with streaming messages.
     fn input(&mut self, input: &[u8]);
 
-    /// Retrieve the digest result. This method may be called multiple times.
-    ///
-    /// # Arguments
-    ///
-    /// * out - the vector to hold the result. Must be large enough to contain
-    /// `output_bits()`.
-    fn result(&mut self, out: &mut [u8]);
-
-    /// Reset the digest. This method must be called after `result()` and before
-    /// supplying more data.
-    fn reset(&mut self);
-
-    /// Get the output size in bytes.
-    fn output_bytes(&self) -> usize;
+    /// Retrieve the digest result. This method consumes digest instance
+    fn result(self) -> GenericArray<u8, Self::N>;
 
     /// Get the block size in bytes.
     fn block_size(&self) -> usize;
 
+    /// Get the output size in bytes.
+    fn output_bytes(&self) -> usize { Self::N::to_usize() }
+
     /// Get the output size in bits.
-    fn output_bits(&self) -> usize { self.output_bytes() * 8 }
+    fn output_bits(&self) -> usize { Self::N::to_usize() * 8 }
 }

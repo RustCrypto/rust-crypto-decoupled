@@ -1,10 +1,17 @@
+#![no_std]
+#![feature(test)]
+extern crate test;
+extern crate md5;
+extern crate crypto_digest;
+
 use test::Bencher;
 use crypto_digest::Digest;
-use super::Ripemd160;
+use md5::Md5;
+
 
 #[bench]
-pub fn ripemd160_10(bh: &mut Bencher) {
-    let mut sh = Ripemd160::new();
+pub fn md5_10(bh: &mut Bencher) {
+    let mut sh = Md5::new();
     let bytes = [1u8; 10];
     bh.iter(|| {
         sh.input(&bytes);
@@ -13,8 +20,8 @@ pub fn ripemd160_10(bh: &mut Bencher) {
 }
 
 #[bench]
-pub fn ripemd160_1k(bh: &mut Bencher) {
-    let mut sh = Ripemd160::new();
+pub fn md5_1k(bh: &mut Bencher) {
+    let mut sh = Md5::new();
     let bytes = [1u8; 1024];
     bh.iter(|| {
         sh.input(&bytes);
@@ -23,8 +30,8 @@ pub fn ripemd160_1k(bh: &mut Bencher) {
 }
 
 #[bench]
-pub fn ripemd160_64k(bh: &mut Bencher) {
-    let mut sh = Ripemd160::new();
+pub fn md5_64k(bh: &mut Bencher) {
+    let mut sh = Md5::new();
     let bytes = [1u8; 65536];
     bh.iter(|| {
         sh.input(&bytes);

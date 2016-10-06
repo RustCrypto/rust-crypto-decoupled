@@ -1,4 +1,8 @@
-use super::Whirlpool;
+#![no_std]
+#[macro_use]
+extern crate crypto_tests;
+extern crate whirlpool;
+
 use crypto_tests::hash::{Test, main_test, one_million_a};
 
 #[test]
@@ -7,11 +11,11 @@ fn whirlpool_main() {
                            "test7", "test8", "test9", "test10", "test11",
                            "test12", "test13", "test14", "test15", "test16",
                            "test17", "test18");
-    main_test(&mut Whirlpool::new(), &tests);
+    main_test::<whirlpool::Whirlpool>(&tests);
 }
 
 #[test]
 fn whirlpool_1million_a() {
     let output = include_bytes!("data/one_million_a.output");
-    one_million_a(&mut Whirlpool::new(), output);
+    one_million_a::<whirlpool::Whirlpool>(output);
 }

@@ -25,6 +25,22 @@ pub fn write_u64_le(dst: &mut [u8], mut input: u64) {
 
 /// Write a vector of u64s into a vector of bytes. The values are written in
 /// little-endian format.
+pub fn write_u64v_be(dst: &mut [u8], input: &[u64]) {
+    assert!(dst.len() == 8 * input.len());
+    unsafe {
+        let mut x: *mut u8 = dst.get_unchecked_mut(0);
+        let mut y: *const u64 = input.get_unchecked(0);
+        for _ in 0..input.len() {
+            let tmp = (*y).to_be();
+            ptr::copy_nonoverlapping(&tmp as *const _ as *const u8, x, 8);
+            x = x.offset(8);
+            y = y.offset(1);
+        }
+    }
+}
+
+/// Write a vector of u64s into a vector of bytes. The values are written in
+/// little-endian format.
 pub fn write_u64v_le(dst: &mut [u8], input: &[u64]) {
     assert!(dst.len() == 8 * input.len());
     unsafe {

@@ -30,47 +30,65 @@
 //! ```
 
 #![no_std]
-#![feature(test)]
-extern crate test;
+extern crate generic_array;
 extern crate crypto_bytes;
 extern crate crypto_digest;
 extern crate crypto_fixed_buffer;
-#[cfg(test)]
-#[macro_use]
-extern crate crypto_tests;
 
 use core::mem::uninitialized;
 
-use crypto_bytes::write_u64_be;
-use crypto_fixed_buffer::{FixedBuffer64, FixedBuffer};
+use crypto_bytes::write_u64v_be;
+use crypto_fixed_buffer::FixedBuffer;
 use crypto_digest::Digest;
+use generic_array::GenericArray;
+use generic_array::typenum::U64;
 
 mod consts;
 use consts::*;
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Whirlpool {
     bit_length: [u8; 32],
-    buffer: FixedBuffer64,
+    buffer: FixedBuffer<U64>,
     hash: [u64; 8],
-    finalized: bool,
 }
 
 impl Whirlpool {
     pub fn new() -> Whirlpool {
         Whirlpool{
             bit_length: [0; 32],
-            buffer: FixedBuffer64::new(),
+            buffer: Default::default(),
             hash: [0; 8],
-            finalized: false,
         }
+    }
+
+    fn finalize(&mut self) {
+        // padding
+        assert!(self.buffer.remaining() >= 1);
+        let hash = &mut self.hash;
+        self.buffer.input(&[0b10000000], |b| { process_buffer(hash, b); });
+
+        if self.buffer.remaining() < self.bit_length.len() {
+            let size = self.buffer.size();
+            self.buffer.zero_until(size);
+            process_buffer(hash, self.buffer.full_buffer());
+        }
+
+        // length
+        self.buffer.zero_until(32);
+        self.buffer.input(&self.bit_length, |b| { process_buffer(hash, b); });
+        assert!(self.buffer.position() == 0);
     }
 }
 
-impl Digest for Whirlpool {
-    fn input(&mut self, source: &[u8]) {
-        assert!(!self.finalized);
+impl Default for Whirlpool {
+    fn default() -> Self { Self::new() }
+}
 
+impl Digest for Whirlpool {
+    type N = U64;
+
+    fn input(&mut self, source: &[u8]) {
         // (byte length * 8) = (bit lenght) converted in a 72 bit uint
         let len = source.len() as u64;
         let len_bits = [
@@ -110,48 +128,15 @@ impl Digest for Whirlpool {
         self.buffer.input(source, |b| { process_buffer(hash, b); });
     }
 
-    fn result(&mut self, out: &mut [u8]) {
-        if !self.finalized {
-            self.finalized = true;
+    fn result(mut self) -> GenericArray<u8, Self::N> {
+        self.finalize();
 
-            // padding
-            assert!(self.buffer.remaining() >= 1);
-            let hash = &mut self.hash;
-            self.buffer.input(&[0b10000000], |b| { process_buffer(hash, b); });
-
-            if self.buffer.remaining() < self.bit_length.len() {
-                let size = self.buffer.size();
-                self.buffer.zero_until(size);
-                process_buffer(hash, self.buffer.full_buffer());
-            }
-
-            // length
-            self.buffer.zero_until(32);
-            self.buffer.input(&self.bit_length, |b| { process_buffer(hash, b); });
-            assert!(self.buffer.position() == 0);
-        }
-
-        // done!
-        write_u64_be(&mut out[0..8], self.hash[0]);
-        write_u64_be(&mut out[8..16], self.hash[1]);
-        write_u64_be(&mut out[16..24], self.hash[2]);
-        write_u64_be(&mut out[24..32], self.hash[3]);
-        write_u64_be(&mut out[32..40], self.hash[4]);
-        write_u64_be(&mut out[40..48], self.hash[5]);
-        write_u64_be(&mut out[48..56], self.hash[6]);
-        write_u64_be(&mut out[56..64], self.hash[7]);
+        let mut out = GenericArray::new();
+        write_u64v_be(&mut out, &self.hash[..]);
+        out
     }
 
-    fn reset(&mut self) {
-        self.bit_length = [0; 32];
-        self.buffer.reset();
-        self.finalized = false;
-        self.hash = [0; 8];    
-    }
-
-    fn output_bytes(&self) -> usize { 512/8 }
-
-    fn block_size(&self) -> usize { 512 }
+    fn block_size(&self) -> usize { self.buffer.size() }
 }
 
 fn process_buffer(hash: &mut[u64; 8], buffer: &[u8]) {
@@ -207,9 +192,3 @@ fn process_buffer(hash: &mut[u64; 8], buffer: &[u8]) {
         hash[i] ^= state[i] ^ block[i];
     }
 }
-
-#[cfg(test)]
-mod tests;
-
-#[cfg(test)]
-mod bench;
