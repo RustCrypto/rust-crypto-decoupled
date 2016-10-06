@@ -1,7 +1,16 @@
+#![no_std]
+#![feature(test)]
+extern crate test;
+extern crate sha2;
+extern crate crypto_digest;
+
 use test::Bencher;
 use crypto_digest::Digest;
-use consts::{STATE_LEN, BLOCK_LEN};
-use super::{Sha256, Sha512, sha256_digest_block_u32, sha512_digest_block_u64};
+use sha2::{Sha256, Sha512, sha256_digest_block_u32, sha512_digest_block_u64};
+
+// Copied from src/consts.rs
+pub const STATE_LEN: usize = 8;
+pub const BLOCK_LEN: usize = 16;
 
 #[bench]
 pub fn sha256_block(bh: &mut Bencher) {

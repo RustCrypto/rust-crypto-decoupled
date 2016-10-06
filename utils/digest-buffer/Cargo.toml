@@ -1,5 +1,5 @@
 [package]
-name = "digest_buffer"
+name = "digest-buffer"
 version = "0.1.0"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"

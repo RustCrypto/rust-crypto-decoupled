@@ -67,28 +67,22 @@
 
 
 #![no_std]
-#![feature(test)]
-extern crate test;
 extern crate generic_array;
 extern crate crypto_bytes;
 extern crate crypto_digest;
 extern crate crypto_fixed_buffer;
 extern crate simd;
-#[cfg(test)]
-#[macro_use]
-extern crate crypto_tests;
 
 use crypto_digest::Digest;
 use crypto_bytes::{write_u32_be, read_u32v_be, write_u64_be, read_u64v_be,
                   add_bytes_to_bits, add_bytes_to_bits_tuple};
-use crypto_fixed_buffer::{FixedBuffer, FixedBuffer128, FixedBuffer64,
-                                 StandardPadding};
+use crypto_fixed_buffer::{FixedBuffer, StandardPadding};
 
 use simd::u32x4;
 use simd::sixty_four::u64x2;
 
 use generic_array::GenericArray;
-use generic_array::typenum::{U16, U64, Unsigned};
+use generic_array::typenum::{U16, U64};
 
 mod consts;
 use consts::{STATE_LEN, BLOCK_LEN, K32X4, K64X2,
@@ -1013,9 +1007,3 @@ impl Digest for Sha224 {
 
     fn block_size(&self) -> usize { 64 }
 }
-
-#[cfg(test)]
-mod tests;
-
-#[cfg(test)]
-mod bench;
