@@ -27,7 +27,7 @@ const DIGEST_BUF_LEN: usize = 5;
 const WORK_BUF_LEN: usize = 16;
 
 /// Structure representing the state of a Ripemd160 computation
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Ripemd160 {
     h: [u32; DIGEST_BUF_LEN],
     length_bits: u64,

@@ -7,7 +7,7 @@ use generic_array::typenum::Unsigned;
 pub trait Digest : Default {
     type N: ArrayLength<u8>;
 
-    /// Create new digest instance
+    /// Create new digest instance.
     fn new() -> Self {
         Default::default()
     }

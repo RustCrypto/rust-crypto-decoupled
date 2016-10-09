@@ -4,13 +4,13 @@ extern crate generic_array;
 use generic_array::{GenericArray, ArrayLength};
 use byte_tools::{copy_memory, zero};
 
-#[derive(Clone)]
-pub struct DigestBuffer<N: ArrayLength<u8>> {
+#[derive(Clone, Copy)]
+pub struct DigestBuffer<N: ArrayLength<u8>> where N::ArrayType: Copy {
     buffer: GenericArray<u8, N>,
     buffer_idx: usize,
 }
 
-impl <N: ArrayLength<u8>> DigestBuffer<N> {
+impl <N: ArrayLength<u8>> DigestBuffer<N> where N::ArrayType: Copy {
     pub fn new() -> DigestBuffer<N> {
         DigestBuffer::<N> {
             buffer: GenericArray::new(),
@@ -107,6 +107,6 @@ impl <N: ArrayLength<u8>> DigestBuffer<N> {
     }
 }
 
-impl <N: ArrayLength<u8>> Default for DigestBuffer<N> {
+impl <N: ArrayLength<u8>> Default for DigestBuffer<N> where N::ArrayType: Copy {
     fn default() -> Self { Self::new() }
 }

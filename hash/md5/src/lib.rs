@@ -1,7 +1,10 @@
+//! The [MD5][1] hash function.
+//!
+//! [1]: https://en.wikipedia.org/wiki/MD5
+
 #![no_std]
-#![feature(step_by)]
 extern crate generic_array;
-extern crate simd_alt as simd;
+extern crate fake_simd as simd;
 extern crate byte_tools;
 extern crate digest;
 extern crate digest_buffer;
@@ -73,8 +76,11 @@ impl Md5State {
 
         read_u32v_le(&mut data, input);
 
+        // FIXME: replace [0, 4, 8, 12] with (0..16).step_by(4)
+        // after stabilization
+
         // round 1
-        for i in (0..16).step_by(4) {
+        for i in [0, 4, 8, 12].iter().cloned() {
             a = op_f(a, b, c, d, data[i].wrapping_add(C1[i]), 7);
             d = op_f(d, a, b, c, data[i + 1].wrapping_add(C1[i + 1]), 12);
             c = op_f(c, d, a, b, data[i + 2].wrapping_add(C1[i + 2]), 17);
@@ -83,7 +89,7 @@ impl Md5State {
 
         // round 2
         let mut t = 1;
-        for i in (0..16).step_by(4) {
+        for i in [0, 4, 8, 12].iter().cloned() {
             let q = data[t & 0x0f].wrapping_add(C2[i]);
             a = op_g(a, b, c, d, q, 5);
             let q = data[(t + 5) & 0x0f].wrapping_add(C2[i + 1]);
@@ -97,7 +103,7 @@ impl Md5State {
 
         // round 3
         t = 5;
-        for i in (0..16).step_by(4) {
+        for i in [0, 4, 8, 12].iter().cloned() {
             let q = data[t & 0x0f].wrapping_add(C3[i]);
             a = op_h(a, b, c, d, q, 4);
             let q = data[(t + 3) & 0x0f].wrapping_add(C3[i + 1]);
@@ -111,7 +117,7 @@ impl Md5State {
 
         // round 4
         t = 0;
-        for i in (0..16).step_by(4) {
+        for i in [0, 4, 8, 12].iter().cloned() {
             let q = data[t & 0x0f].wrapping_add(C4[i]);
             a = op_i(a, b, c, d, q, 6);
             let q = data[(t + 7) & 0x0f].wrapping_add(C4[i + 1]);
