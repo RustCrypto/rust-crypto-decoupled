@@ -1,14 +1,20 @@
 [package]
 name = "blake2"
-version = "0.0.0"
+version = "0.1.1"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
+description = "BLAKE2 hash functions"
+documentation = "https://docs.rs/blake2"
+repository = "https://github.com/RustCrypto/rust-crypto-decoupled"
+keywords = ["crypto", "blake2", "hash", "digest"]
 
 [dependencies]
-crypto_bytes = {path = "../../utils/crypto-bytes"}
-crypto_digest = {path = "../../utils/crypto-digest"}
-crypto_mac = {path = "../../utils/crypto-mac"}
-crypto_ops = {path = "../../utils/crypto-ops"}
+byte-tools = "0.1"
+digest = "0.1"
+generic-array = "0.5"
+
+# crypto_mac = {path = "../../utils/crypto-mac"}
+crypto-ops = "0.1"
 
 [dev-dependencies]
-crypto_tests = {path = "../../utils/crypto-tests"}
+crypto-tests = "0.1"

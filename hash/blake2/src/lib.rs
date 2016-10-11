@@ -1,24 +1,16 @@
 #![no_std]
-#![feature(test)]
-extern crate test;
-extern crate crypto_bytes;
-extern crate crypto_digest;
-extern crate crypto_mac;
+extern crate byte_tools;
+extern crate digest;
+// extern crate crypto_mac;
 extern crate crypto_ops;
-#[cfg(test)]
-#[macro_use]
-extern crate crypto_tests;
+extern crate generic_array;
 
 mod consts;
 
 mod blake2b;
-pub use blake2b::Blake2b;
+pub use blake2b::{Blake2b, Blake2b512};
 
 mod blake2s;
-pub use blake2s::Blake2s;
+pub use blake2s::{Blake2s, Blake2s256};
 
-#[cfg(test)]
-mod tests;
-
-#[cfg(test)]
-mod bench;
+pub use digest::Digest;

@@ -1,15 +1,20 @@
-use crypto_bytes::{copy_memory, read_u64v_le, write_u64v_le,
+use byte_tools::{copy_memory, read_u64v_le, write_u64v_le,
     write_u32_le, write_u64_le};
 use crypto_ops::secure_memset;
-use crypto_digest::Digest;
-use crypto_mac::{Mac, MacResult512};
+use digest::Digest;
+// use crypto_mac::{Mac, MacResult512};
+use generic_array::{GenericArray, ArrayLength};
+// use generic_array::typenum::{U64, Unsigned};
+use generic_array::typenum::U64;
 
 use consts::BLAKE2B_IV as IV;
 use consts::{SIGMA, BLAKE2B_BLOCKBYTES, BLAKE2B_OUTBYTES, BLAKE2B_KEYBYTES,
              BLAKE2B_SALTBYTES, BLAKE2B_PERSONALBYTES};
 
+use core::marker::PhantomData;
+
 #[derive(Copy)]
-pub struct Blake2b {
+pub struct Blake2b<N> where N: ArrayLength<u8> + Copy {
     h: [u64; 8],
     t: [u64; 2],
     f: [u64; 2],
@@ -18,16 +23,19 @@ pub struct Blake2b {
     key: [u8; BLAKE2B_KEYBYTES],
     key_length: u8,
     last_node: u8,
-    digest_length: u8,
-    computed: bool, // whether the final digest has been computed
-    param: Blake2bParam
+    param: Blake2bParam,
+    // Phantom data to tie digest length to this struct
+    phantom: PhantomData<N>,
 }
 
-impl Clone for Blake2b { fn clone(&self) -> Blake2b { *self } }
+pub type Blake2b512 = Blake2b<U64>;
+
+impl<N> Clone for Blake2b<N> where N: ArrayLength<u8> + Copy  {
+    fn clone(&self) -> Blake2b<N> { *self }
+}
 
 #[derive(Copy, Clone)]
 struct Blake2bParam {
-    digest_length: u8,
     key_length: u8,
     fanout: u8,
     depth: u8,
@@ -63,7 +71,7 @@ macro_rules! round( ($r:expr, $v:expr, $m:expr) => ( {
   }
 ));
 
-impl Blake2b {
+impl<N> Blake2b<N> where N: ArrayLength<u8> + Copy  {
     fn set_lastnode(&mut self) {
         self.f[1] = 0xFFFFFFFFFFFFFFFF;
     }
@@ -80,29 +88,10 @@ impl Blake2b {
         self.t[1] += if self.t[0] < inc { 1 } else { 0 };
     }
 
-    fn init0(param: Blake2bParam, digest_length: u8, key: &[u8]) -> Blake2b {
-        assert!(key.len() <= BLAKE2B_KEYBYTES);
-        let mut b = Blake2b {
-            h: IV,
-            t: [0,0],
-            f: [0,0],
-            buf: [0; 2*BLAKE2B_BLOCKBYTES],
-            buflen: 0,
-            last_node: 0,
-            digest_length: digest_length,
-            computed: false,
-            key: [0; BLAKE2B_KEYBYTES],
-            key_length: key.len() as u8,
-            param: param
-        };
-        copy_memory(key, &mut b.key);
-        b
-    }
-
     fn apply_param(&mut self) {
         let mut param_bytes = [0u8; 64];
 
-        param_bytes[0] = self.param.digest_length;
+        param_bytes[0] = N::to_u8();
         param_bytes[1] = self.param.key_length;
         param_bytes[2] = self.param.fanout;
         param_bytes[3] = self.param.depth;
@@ -121,17 +110,29 @@ impl Blake2b {
         }
     }
 
-
     // init xors IV with input parameter block
-    fn init_param( p: Blake2bParam, key: &[u8] ) -> Blake2b {
-        let mut b = Blake2b::init0(p, p.digest_length, key);
+    fn init(param: Blake2bParam, key: &[u8]) -> Blake2b<N> {
+        assert!(key.len() <= BLAKE2B_KEYBYTES);
+        let mut b = Blake2b {
+            h: IV,
+            t: [0,0],
+            f: [0,0],
+            buf: [0; 2*BLAKE2B_BLOCKBYTES],
+            buflen: 0,
+            last_node: 0,
+            key: [0; BLAKE2B_KEYBYTES],
+            key_length: key.len() as u8,
+            param: param,
+            phantom: PhantomData,
+        };
+        copy_memory(key, &mut b.key);
         b.apply_param();
         b
     }
 
-    fn default_param(outlen: u8) -> Blake2bParam {
-        Blake2bParam {
-            digest_length: outlen,
+    pub fn new() -> Blake2b<N> {
+        assert!(N::to_usize() > 0 && N::to_usize() <= BLAKE2B_OUTBYTES);
+        let param = Blake2bParam {
             key_length: 0,
             fanout: 1,
             depth: 1,
@@ -142,12 +143,9 @@ impl Blake2b {
             reserved: [0; 14],
             salt: [0; BLAKE2B_SALTBYTES],
             personal: [0; BLAKE2B_PERSONALBYTES],
-        }
-    }
+        };
 
-    pub fn new(outlen: usize) -> Blake2b {
-        assert!(outlen > 0 && outlen <= BLAKE2B_OUTBYTES);
-        Blake2b::init_param(Blake2b::default_param(outlen as u8), &[])
+        Blake2b::init(param, &[])
     }
 
     fn apply_key(&mut self) {
@@ -157,12 +155,11 @@ impl Blake2b {
         secure_memset(&mut block[..], 0);
     }
 
-    pub fn new_keyed(outlen: usize, key: &[u8] ) -> Blake2b {
-        assert!(outlen > 0 && outlen <= BLAKE2B_OUTBYTES);
+    pub fn new_keyed(key: &[u8] ) -> Blake2b<N> {
+        assert!(N::to_usize() > 0 && N::to_usize() <= BLAKE2B_OUTBYTES);
         assert!(key.len() > 0 && key.len() <= BLAKE2B_KEYBYTES);
 
         let param = Blake2bParam {
-            digest_length: outlen as u8,
             key_length: key.len() as u8,
             fanout: 1,
             depth: 1,
@@ -175,7 +172,7 @@ impl Blake2b {
             personal: [0; BLAKE2B_PERSONALBYTES],
         };
 
-        let mut b = Blake2b::init_param(param, key);
+        let mut b = Blake2b::init(param, key);
         b.apply_key();
         b
     }
@@ -211,12 +208,15 @@ impl Blake2b {
         round!( 10, vs, ms );
         round!( 11, vs, ms );
 
-        for (h_elem, (v_low, v_high)) in self.h.iter_mut().zip( vs[0..8].iter().zip(vs[8..16].iter()) ) {
+        let iter = self.h.iter_mut().zip(vs[0..8].iter().zip(vs[8..16].iter()));
+        for (h_elem, (v_low, v_high)) in iter {
             *h_elem = *h_elem ^ *v_low ^ *v_high;
         }
     }
 
-    fn update( &mut self, mut input: &[u8] ) {
+
+    fn update(&mut self, input: &[u8]) {
+        let mut input = input;
         while input.len() > 0 {
             let left = self.buflen;
             let fill = 2 * BLAKE2B_BLOCKBYTES - left;
@@ -242,102 +242,71 @@ impl Blake2b {
         }
     }
 
-    fn finalize( &mut self, out: &mut [u8] ) {
-        assert_eq!(out.len(), self.digest_length as usize);
-        if !self.computed {
-            if self.buflen > BLAKE2B_BLOCKBYTES {
-                self.increment_counter(BLAKE2B_BLOCKBYTES as u64);
-                self.compress();
-                self.buflen -= BLAKE2B_BLOCKBYTES;
-
-                let mut halves = self.buf.chunks_mut(BLAKE2B_BLOCKBYTES);
-                let first_half = halves.next().unwrap();
-                let second_half = halves.next().unwrap();
-                copy_memory(second_half, first_half);
-            }
-
-            let incby = self.buflen as u64;
-            self.increment_counter(incby);
-            self.set_lastblock();
-            for b in self.buf[self.buflen..].iter_mut() {
-                *b = 0;
-            }
+    fn finalize(mut self) -> GenericArray<u8, N> {
+        if self.buflen > BLAKE2B_BLOCKBYTES {
+            self.increment_counter(BLAKE2B_BLOCKBYTES as u64);
             self.compress();
+            self.buflen -= BLAKE2B_BLOCKBYTES;
 
-            write_u64v_le(&mut self.buf[0..64], &self.h);
-            self.computed = true;
+            let mut halves = self.buf.chunks_mut(BLAKE2B_BLOCKBYTES);
+            let first_half = halves.next().unwrap();
+            let second_half = halves.next().unwrap();
+            copy_memory(second_half, first_half);
         }
-        let outlen = out.len();
-        copy_memory(&self.buf[0..outlen], out);
-    }
 
-    pub fn reset(&mut self) {
-        for (h_elem, iv_elem) in self.h.iter_mut().zip(IV.iter()) {
-            *h_elem = *iv_elem;
-        }
-        for t_elem in self.t.iter_mut() {
-            *t_elem = 0;
-        }
-        for f_elem in self.f.iter_mut() {
-            *f_elem = 0;
-        }
-        for b in self.buf.iter_mut() {
+        let incby = self.buflen as u64;
+        self.increment_counter(incby);
+        self.set_lastblock();
+        for b in self.buf[self.buflen..].iter_mut() {
             *b = 0;
         }
-        self.buflen = 0;
-        self.last_node = 0;
-        self.computed = false;
-        self.apply_param();
-        if self.key_length > 0 {
-            self.apply_key();
-        }
+        self.compress();
+
+        write_u64v_le(&mut self.buf[0..64], &self.h);
+
+        let mut out = GenericArray::new();
+        copy_memory(&self.buf[..N::to_usize()], &mut out);
+        out
     }
 
-    pub fn blake2b(out: &mut[u8], input: &[u8], key: &[u8]) {
-        let mut hasher : Blake2b = if key.len() > 0 { Blake2b::new_keyed(out.len(), key) } else { Blake2b::new(out.len()) };
-
-        hasher.update(input);
-        hasher.finalize(out);
-    }
 }
 
-impl Digest for Blake2b {
-    fn reset(&mut self) { Blake2b::reset(self); }
-    fn input(&mut self, msg: &[u8]) { self.update(msg); }
-    fn result(&mut self, out: &mut [u8]) { self.finalize(out); }
-    fn output_bytes(&self) -> usize { self.digest_length as usize }
+impl<N> Default for Blake2b<N> where N: ArrayLength<u8> + Copy {
+    fn default() -> Self { Self::new() }
+} 
+
+impl<L> Digest for Blake2b<L> where L: ArrayLength<u8> + Copy {
+    type N = L;
+
+    fn input(&mut self, input: &[u8]) { self.update(input); }
+
+    fn result(self) -> GenericArray<u8, Self::N> { self.finalize() }
+
+    // FIXME: check block size
     fn block_size(&self) -> usize { 8 * BLAKE2B_BLOCKBYTES }
 }
 
-impl Mac<MacResult512> for Blake2b {
-    /// Process input data.
-    ///
-    /// # Arguments
-    /// * data - The input data to process.
+/*
+impl Mac<MacResult512> for Blake2b<U64> {
     fn input(&mut self, data: &[u8]) {
         self.update(data);
     }
 
-    /// Reset the Mac state to begin processing another input stream.
     fn reset(&mut self) {
-        Blake2b::reset(self);
+        panic!("Remove it")
     }
 
-    /// Obtain the result of a Mac computation as a MacResult.
     fn result(&mut self) -> MacResult512 {
         let mut buf = [0u8; 64];
         self.raw_result(&mut buf);
         MacResult512::new(buf)
     }
 
-    /// Obtain the result of a Mac computation as [u8]. This method should be
-    /// used very carefully since incorrect use of the Mac code could result in
-    /// permitting a timing attack which defeats the security provided by a Mac
-    /// function.
     fn raw_result(&mut self, output: &mut [u8]) {
-        self.finalize(output);
+        let res = self.finalize();
+        output.copy_from_slice(&res[..]);
     }
 
-    /// Get the size of the Mac code, in bytes.
-    fn output_bytes(&self) -> usize { self.digest_length as usize }
+    fn output_bytes(&self) -> usize { U64::to_usize() }
 }
+*/

@@ -1,14 +1,19 @@
-use crypto_bytes::{copy_memory, read_u32v_le, write_u32v_le, write_u32_le};
+use byte_tools::{copy_memory, read_u32v_le, write_u32v_le, write_u32_le};
 use crypto_ops::secure_memset;
-use crypto_digest::Digest;
-use crypto_mac::{Mac, MacResult256};
+use digest::Digest;
+//use crypto_mac::{Mac, MacResult256};
+use generic_array::{GenericArray, ArrayLength};
+// use generic_array::typenum::{U32, Unsigned};
+use generic_array::typenum::U32;
 
 use consts::BLAKE2S_IV as IV;
 use consts::{SIGMA, BLAKE2S_BLOCKBYTES, BLAKE2S_OUTBYTES, BLAKE2S_KEYBYTES,
              BLAKE2S_SALTBYTES, BLAKE2S_PERSONALBYTES};
 
+use core::marker::PhantomData;
+
 #[derive(Copy)]
-pub struct Blake2s {
+pub struct Blake2s<N> where N: ArrayLength<u8> + Copy {
     h: [u32; 8],
     t: [u32; 2],
     f: [u32; 2],
@@ -17,16 +22,19 @@ pub struct Blake2s {
     key: [u8; BLAKE2S_KEYBYTES],
     key_length: u8,
     last_node: u8,
-    digest_length: u8,
-    computed: bool, // whether the final digest has been computed
-    param: Blake2sParam
+    param: Blake2sParam,
+    // Phantom data to tie digest length to this struct
+    phantom: PhantomData<N>,
 }
 
-impl Clone for Blake2s { fn clone(&self) -> Blake2s { *self } }
+pub type Blake2s256 = Blake2s<U32>;
+
+impl<N> Clone for Blake2s<N> where N: ArrayLength<u8> + Copy {
+    fn clone(&self) -> Blake2s<N> { *self }
+}
 
 #[derive(Copy, Clone)]
 struct Blake2sParam {
-    digest_length: u8,
     key_length: u8,
     fanout: u8,
     depth: u8,
@@ -61,7 +69,7 @@ macro_rules! round( ($r:expr, $v:expr, $m:expr) => ( {
   }
 ));
 
-impl Blake2s {
+impl<N> Blake2s<N> where N: ArrayLength<u8> + Copy {
     fn set_lastnode(&mut self) {
         self.f[1] = 0xFFFFFFFF;
     }
@@ -78,29 +86,10 @@ impl Blake2s {
         self.t[1] += if self.t[0] < inc { 1 } else { 0 };
     }
 
-    fn init0(param: Blake2sParam, digest_length: u8, key: &[u8]) -> Blake2s {
-        assert!(key.len() <= BLAKE2S_KEYBYTES);
-        let mut b = Blake2s {
-            h: IV,
-            t: [0,0],
-            f: [0,0],
-            buf: [0; 2*BLAKE2S_BLOCKBYTES],
-            buflen: 0,
-            last_node: 0,
-            digest_length: digest_length,
-            computed: false,
-            key: [0; BLAKE2S_KEYBYTES],
-            key_length: key.len() as u8,
-            param: param
-        };
-        copy_memory(key, &mut b.key);
-        b
-    }
-
     fn apply_param(&mut self) {
         let mut param_bytes = [0u8; 32];
 
-        param_bytes[0] = self.param.digest_length;
+        param_bytes[0] = N::to_u8();
         param_bytes[1] = self.param.key_length;
         param_bytes[2] = self.param.fanout;
         param_bytes[3] = self.param.depth;
@@ -118,17 +107,29 @@ impl Blake2s {
         }
     }
 
-
     // init xors IV with input parameter block
-    fn init_param( p: Blake2sParam, key: &[u8] ) -> Blake2s {
-        let mut b = Blake2s::init0(p, p.digest_length, key);
+    fn init( param: Blake2sParam, key: &[u8] ) -> Blake2s<N> {
+        assert!(key.len() <= BLAKE2S_KEYBYTES);
+        let mut b = Blake2s {
+            h: IV,
+            t: [0,0],
+            f: [0,0],
+            buf: [0; 2*BLAKE2S_BLOCKBYTES],
+            buflen: 0,
+            last_node: 0,
+            key: [0; BLAKE2S_KEYBYTES],
+            key_length: key.len() as u8,
+            param: param,
+            phantom: PhantomData,
+        };
+        copy_memory(key, &mut b.key);
         b.apply_param();
         b
     }
 
-    fn default_param(outlen: u8) -> Blake2sParam {
-        Blake2sParam {
-            digest_length: outlen,
+    pub fn new() -> Blake2s<N> {
+        assert!(N::to_usize() > 0 && N::to_usize() <= BLAKE2S_OUTBYTES);
+        let default_param = Blake2sParam {
             key_length: 0,
             fanout: 1,
             depth: 1,
@@ -138,12 +139,8 @@ impl Blake2s {
             inner_length: 0,
             salt: [0; BLAKE2S_SALTBYTES],
             personal: [0; BLAKE2S_PERSONALBYTES],
-        }
-    }
-
-    pub fn new(outlen: usize) -> Blake2s {
-        assert!(outlen > 0 && outlen <= BLAKE2S_OUTBYTES);
-        Blake2s::init_param(Blake2s::default_param(outlen as u8), &[])
+        };
+        Blake2s::init(default_param, &[])
     }
 
     fn apply_key(&mut self) {
@@ -153,12 +150,11 @@ impl Blake2s {
         secure_memset(&mut block[..], 0);
     }
 
-    pub fn new_keyed(outlen: usize, key: &[u8] ) -> Blake2s {
-        assert!(outlen > 0 && outlen <= BLAKE2S_OUTBYTES);
+    pub fn new_keyed(key: &[u8] ) -> Blake2s<N> {
+        assert!(N::to_usize() > 0 && N::to_usize() <= BLAKE2S_OUTBYTES);
         assert!(key.len() > 0 && key.len() <= BLAKE2S_KEYBYTES);
 
         let param = Blake2sParam {
-            digest_length: outlen as u8,
             key_length: key.len() as u8,
             fanout: 1,
             depth: 1,
@@ -170,7 +166,7 @@ impl Blake2s {
             personal: [0; BLAKE2S_PERSONALBYTES],
         };
 
-        let mut b = Blake2s::init_param(param, key);
+        let mut b = Blake2s::init(param, key);
         b.apply_key();
         b
     }
@@ -235,102 +231,70 @@ impl Blake2s {
         }
     }
 
-    fn finalize( &mut self, out: &mut [u8] ) {
-        assert!(out.len() == self.digest_length as usize);
-        if !self.computed {
-            if self.buflen > BLAKE2S_BLOCKBYTES {
-                self.increment_counter(BLAKE2S_BLOCKBYTES as u32);
-                self.compress();
-                self.buflen -= BLAKE2S_BLOCKBYTES;
-
-                let mut halves = self.buf.chunks_mut(BLAKE2S_BLOCKBYTES);
-                let first_half = halves.next().unwrap();
-                let second_half = halves.next().unwrap();
-                copy_memory(second_half, first_half);
-            }
-
-            let incby = self.buflen as u32;
-            self.increment_counter(incby);
-            self.set_lastblock();
-            for b in self.buf[self.buflen..].iter_mut() {
-                *b = 0;
-            }
+    fn finalize(mut self) -> GenericArray<u8, N> {
+        if self.buflen > BLAKE2S_BLOCKBYTES {
+            self.increment_counter(BLAKE2S_BLOCKBYTES as u32);
             self.compress();
+            self.buflen -= BLAKE2S_BLOCKBYTES;
 
-            write_u32v_le(&mut self.buf[0..32], &self.h);
-            self.computed = true;
+            let mut halves = self.buf.chunks_mut(BLAKE2S_BLOCKBYTES);
+            let first_half = halves.next().unwrap();
+            let second_half = halves.next().unwrap();
+            copy_memory(second_half, first_half);
         }
-        let outlen = out.len();
-        copy_memory(&self.buf[0..outlen], out);
-    }
 
-    pub fn reset(&mut self) {
-        for (h_elem, iv_elem) in self.h.iter_mut().zip(IV.iter()) {
-            *h_elem = *iv_elem;
-        }
-        for t_elem in self.t.iter_mut() {
-            *t_elem = 0;
-        }
-        for f_elem in self.f.iter_mut() {
-            *f_elem = 0;
-        }
-        for b in self.buf.iter_mut() {
+        let incby = self.buflen as u32;
+        self.increment_counter(incby);
+        self.set_lastblock();
+        for b in self.buf[self.buflen..].iter_mut() {
             *b = 0;
         }
-        self.buflen = 0;
-        self.last_node = 0;
-        self.computed = false;
-        self.apply_param();
-        if self.key_length > 0 {
-            self.apply_key();
-        }
-    }
+        self.compress();
 
-    pub fn blake2s(out: &mut[u8], input: &[u8], key: &[u8]) {
-        let mut hasher : Blake2s = if key.len() > 0 { Blake2s::new_keyed(out.len(), key) } else { Blake2s::new(out.len()) };
+        write_u32v_le(&mut self.buf[0..32], &self.h);
 
-        hasher.update(input);
-        hasher.finalize(out);
+        let mut out = GenericArray::new();
+        copy_memory(&self.buf[..N::to_usize()], &mut out);
+        out
     }
 }
 
-impl Digest for Blake2s {
-    fn reset(&mut self) { Blake2s::reset(self); }
-    fn input(&mut self, msg: &[u8]) { self.update(msg); }
-    fn result(&mut self, out: &mut [u8]) { self.finalize(out); }
-    fn output_bytes(&self) -> usize { self.digest_length as usize }
+impl<N> Default for Blake2s<N> where N: ArrayLength<u8> + Copy {
+    fn default() -> Self { Self::new() }
+} 
+
+impl<L> Digest for Blake2s<L> where L: ArrayLength<u8> + Copy {
+    type N = L;
+
+    fn input(&mut self, input: &[u8]) { self.update(input); }
+
+    fn result(self) -> GenericArray<u8, Self::N> { self.finalize() }
+
+    // FIXME: check block size
     fn block_size(&self) -> usize { 8 * BLAKE2S_BLOCKBYTES }
 }
 
-impl Mac<MacResult256> for Blake2s {
-    /// Process input data.
-    ///
-    /// # Arguments
-    /// * data - The input data to process.
+/*
+impl Mac<MacResult256> for Blake2s<U32> {
     fn input(&mut self, data: &[u8]) {
         self.update(data);
     }
 
-    /// Reset the Mac state to begin processing another input stream.
     fn reset(&mut self) {
-        Blake2s::reset(self);
+        panic!("Remove it")
     }
 
-    /// Obtain the result of a Mac computation as a MacResult.
     fn result(&mut self) -> MacResult256 {
         let mut buf = [0u8; 32];
         self.raw_result(&mut buf);
         MacResult256::new(buf)
     }
 
-    /// Obtain the result of a Mac computation as [u8]. This method should be
-    /// used very carefully since incorrect use of the Mac code could result in
-    /// permitting a timing attack which defeats the security provided by a Mac
-    /// function.
     fn raw_result(&mut self, output: &mut [u8]) {
-        self.finalize(output);
+        let res = self.finalize();
+        output.copy_from_slice(&res[..]);
     }
 
-    /// Get the size of the Mac code, in bytes.
-    fn output_bytes(&self) -> usize { self.digest_length as usize }
+    fn output_bytes(&self) -> usize { U32::to_usize() }
 }
+*/
