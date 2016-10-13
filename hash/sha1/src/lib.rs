@@ -53,7 +53,7 @@ extern crate generic_array;
 extern crate byte_tools;
 extern crate digest;
 extern crate digest_buffer;
-extern crate simd_alt as simd;
+extern crate fake_simd as simd;
 
 pub use digest::Digest;
 use byte_tools::{write_u32_be, read_u32v_be, add_bytes_to_bits};
@@ -163,7 +163,7 @@ fn sha1rnds4c(abcd: u32x4, msg: u32x4) -> u32x4 {
         .wrapping_add(w);
     d = d.rotate_left(30);
 
-    u32x4::new(b, c, d, e)
+    u32x4(b, c, d, e)
 }
 
 /// Not an intrinsic, but helps emulate `llvm.x86.sha1rnds4` intrinsic.
@@ -248,14 +248,15 @@ pub fn sha1_digest_block_u32(state: &mut [u32; 5], block: &[u32; 16]) {
     }
 
     // Rounds 0..20
-    let mut h0 = u32x4::load(state, 0);
-    let mut w0 = u32x4::load(block, 0);
+    // TODO: replace with `u32x4::load`
+    let mut h0 = u32x4(state[0], state[1], state[2], state[3]);
+    let mut w0 = u32x4(block[0], block[1], block[2], block[3]);
     let mut h1 = sha1_digest_round_x4(h0, sha1_first_add(state[4], w0), 0);
-    let mut w1 = u32x4::load(block, 4);
+    let mut w1 = u32x4(block[4], block[5], block[6], block[7]);
     h0 = rounds4!(h1, h0, w1, 0);
-    let mut w2 = u32x4::load(block, 8);
+    let mut w2 = u32x4(block[8], block[9], block[10], block[11]);
     h1 = rounds4!(h0, h1, w2, 0);
-    let mut w3 = u32x4::load(block, 12);
+    let mut w3 = u32x4(block[12], block[13], block[14], block[15]);
     h0 = rounds4!(h1, h0, w3, 0);
     let mut w4 = schedule!(w0, w1, w2, w3);
     h1 = rounds4!(h0, h1, w4, 0);

@@ -25,10 +25,10 @@ fn process<D: Digest, R: Read>(reader: &mut R, name: &str) {
             Ok(n) => n,
             Err(_) => return,
         };
+        sh.input(&buffer[..n]);
         if n == 0 || n < BUFFER_SIZE {
             break;
         }
-        sh.input(&buffer[..n]);
     }
     print_result(&sh.result(), name);
 }

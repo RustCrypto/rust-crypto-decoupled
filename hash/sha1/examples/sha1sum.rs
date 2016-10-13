@@ -1,6 +1,6 @@
-extern crate blake2;
+extern crate sha1;
 
-use blake2::{Blake2b512, Digest};
+use sha1::{Sha1, Digest};
 use std::env;
 use std::fs;
 use std::io::{self, Read};
@@ -40,10 +40,10 @@ fn main() {
     if args.len() > 1 {
         for path in args.skip(1) {
             if let Ok(mut file) = fs::File::open(&path) {
-                process::<Blake2b512, _>(&mut file, &path);
+                process::<Sha1, _>(&mut file, &path);
             }
         }
     } else {
-        process::<Blake2b512, _>(&mut io::stdin(), "-");
+        process::<Sha1, _>(&mut io::stdin(), "-");
     }
 }
