@@ -1,29 +1,35 @@
-use super::{Sha3, Sha3Mode};
+#![no_std]
+#[macro_use]
+extern crate crypto_tests;
+extern crate generic_array;
+extern crate sha3;
+
+use generic_array::typenum::{U512};
 use crypto_tests::hash::{Test, main_test};
 
 #[test]
 fn keccak_224() {
     let tests = new_tests!("keccak_224/test1");
-    main_test(&mut Sha3::new(Sha3Mode::Keccak224), &tests);
+    main_test::<sha3::Keccak224>(&tests);
 }
 
 #[test]
 fn keccak_256() {
     let tests =
         new_tests!("keccak_256/test1", "keccak_256/test2", "keccak_256/test3");
-    main_test(&mut Sha3::new(Sha3Mode::Keccak256), &tests);
+    main_test::<sha3::Keccak256>(&tests);
 }
 
 #[test]
 fn keccak_384() {
     let tests = new_tests!("keccak_384/test1");
-    main_test(&mut Sha3::new(Sha3Mode::Keccak384), &tests);
+    main_test::<sha3::Keccak384>(&tests);
 }
 
 #[test]
 fn keccak_512() {
     let tests = new_tests!("keccak_512/test1");
-    main_test(&mut Sha3::new(Sha3Mode::Keccak512), &tests);
+    main_test::<sha3::Keccak512>(&tests);
 }
 
 #[test]
@@ -284,7 +290,7 @@ fn sha3_224() {
                            "sha3_224/test254",
                            "sha3_224/test255",
                            "sha3_224/test256");
-    main_test(&mut Sha3::new(Sha3Mode::Sha3_224), &tests);
+    main_test::<sha3::Sha3_224>(&tests);
 }
 
 #[test]
@@ -545,7 +551,7 @@ fn sha3_256() {
                            "sha3_256/test254",
                            "sha3_256/test255",
                            "sha3_256/test256");
-    main_test(&mut Sha3::new(Sha3Mode::Sha3_256), &tests);
+    main_test::<sha3::Sha3_256>(&tests);
 }
 
 #[test]
@@ -805,7 +811,7 @@ fn sha3_384() {
                            "sha3_384/test253",
                            "sha3_384/test254",
                            "sha3_384/test255");
-    main_test(&mut Sha3::new(Sha3Mode::Sha3_384), &tests);
+    main_test::<sha3::Sha3_384>(&tests);
 }
 
 #[test]
@@ -1065,7 +1071,7 @@ fn sha3_512() {
                            "sha3_512/test253",
                            "sha3_512/test254",
                            "sha3_512/test255");
-    main_test(&mut Sha3::new(Sha3Mode::Sha3_512), &tests);
+    main_test::<sha3::Sha3_512>(&tests);
 }
 
 #[test]
@@ -1326,7 +1332,7 @@ fn sha3_shake128() {
                            "sha3_shake128/test254",
                            "sha3_shake128/test255",
                            "sha3_shake128/test256");
-    main_test(&mut Sha3::new(Sha3Mode::Shake128), &tests);
+    main_test::<sha3::Shake128<U512>>(&tests);
 }
 
 #[test]
@@ -1587,5 +1593,5 @@ fn sha3_shake256() {
                            "sha3_shake256/test254",
                            "sha3_shake256/test255",
                            "sha3_shake256/test256");
-    main_test(&mut Sha3::new(Sha3Mode::Shake256), &tests);
+    main_test::<sha3::Shake256<U512>>(&tests);
 }

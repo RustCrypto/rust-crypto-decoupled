@@ -1,4 +1,4 @@
-use crypto_bytes::{write_u64v_le, read_u64v_le};
+use byte_tools::{write_u64v_le, read_u64v_le};
 
 pub const B: usize = 200;
 const NROUNDS: usize = 24;

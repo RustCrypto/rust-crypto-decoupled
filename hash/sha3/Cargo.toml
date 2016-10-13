@@ -9,8 +9,9 @@ repository = "https://github.com/RustCrypto/rust-crypto-decoupled"
 keywords = ["crypto", "sha3", "keccak", "hash", "digest"]
 
 [dependencies]
-crypto_bytes = {path = "../../utils/crypto-bytes"}
-crypto_digest = {path = "../../utils/crypto-digest"}
+byte-tools = "0.1"
+digest = "0.1"
+generic-array = "0.5"
 
 [dev-dependencies]
-crypto_tests = {path = "../../utils/crypto-tests"}
+crypto-tests = "0.1"
