@@ -2,35 +2,9 @@
 #![feature(test)]
 extern crate test;
 extern crate sha2;
-extern crate crypto_digest;
 
 use test::Bencher;
-use crypto_digest::Digest;
-use sha2::{Sha256, Sha512, sha256_digest_block_u32, sha512_digest_block_u64};
-
-// Copied from src/consts.rs
-pub const STATE_LEN: usize = 8;
-pub const BLOCK_LEN: usize = 16;
-
-#[bench]
-pub fn sha256_block(bh: &mut Bencher) {
-    let mut state = [0u32; STATE_LEN];
-    let words = [1u32; BLOCK_LEN];
-    bh.iter(|| {
-        sha256_digest_block_u32(&mut state, &words);
-    });
-    bh.bytes = 64u64;
-}
-
-#[bench]
-pub fn sha512_block(bh: &mut Bencher) {
-    let mut state = [0u64; STATE_LEN];
-    let words = [1u64; BLOCK_LEN];
-    bh.iter(|| {
-        sha512_digest_block_u64(&mut state, &words);
-    });
-    bh.bytes = 128u64;
-}
+use sha2::{Digest, Sha256, Sha512};
 
 #[bench]
 pub fn sha256_10(bh: &mut Bencher) {

@@ -43,13 +43,12 @@ fn sha2_512_trunc_224_main() {
 
 #[test]
 fn sha2_256_1million_a() {
-    let output = include_bytes!("data/sha256/one_million_a.output");
+    let output = include_bytes!("data/sha256/one_million_a.output.bin");
     one_million_a::<sha2::Sha256>(output);
 }
 
-
 #[test]
 fn sha2_512_1million_a() {
-    let output = include_bytes!("data/sha512/one_million_a.output");
+    let output = include_bytes!("data/sha512/one_million_a.output.bin");
     one_million_a::<sha2::Sha512>(output);
 }

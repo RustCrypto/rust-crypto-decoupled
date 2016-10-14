@@ -1,4 +1,4 @@
-use simd::sixty_four::u64x2;
+use simd::u64x2;
 use simd::u32x4;
 
 pub const STATE_LEN: usize = 8;
