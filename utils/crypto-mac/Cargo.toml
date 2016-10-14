@@ -5,4 +5,7 @@ authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
-crypto_ops = {path = "../crypto-ops"}
+generic-array = "0.5"
+crypto-ops = "0.1"
+byte-tools = "0.1"
+digest = {path="../digest"}
