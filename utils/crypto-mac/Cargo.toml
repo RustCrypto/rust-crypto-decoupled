@@ -1,6 +1,6 @@
 [package]
 name = "crypto_mac"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
@@ -8,4 +8,7 @@ license = "MIT/Apache-2.0"
 generic-array = "0.5"
 crypto-ops = "0.1"
 byte-tools = "0.1"
-digest = {path="../digest"}
+digest = "0.2"
+
+[dev-dependencies]
+md5 = {path="../../hash/md5"}

@@ -4,7 +4,7 @@ use generic_array::{GenericArray, ArrayLength};
 use generic_array::typenum::Unsigned;
 
 /// The Digest trait specifies an interface common to digest functions
-pub trait Digest : Default {
+pub trait Digest {
     type R: ArrayLength<u8>;
     type B: ArrayLength<u8>;
 

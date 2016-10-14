@@ -20,13 +20,14 @@ use generic_array::typenum::{U16, U64};
 mod consts;
 use consts::{C1, C2, C3, C4, S};
 
+type BlockSize = U64;
+
 /// A structure that represents that state of a digest computation for the MD5
 /// digest function
-#[derive(Clone, Copy)]
+#[derive(Copy, Clone)]
 struct Md5State {
     s: u32x4,
 }
-
 
 impl Md5State {
     fn new() -> Md5State {
@@ -134,23 +135,14 @@ impl Md5State {
 }
 
 /// The MD5 Digest algorithm
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct Md5 {
     length_bytes: u64,
-    buffer: DigestBuffer<U64>,
+    buffer: DigestBuffer<BlockSize>,
     state: Md5State,
 }
 
 impl Md5 {
-    /// Construct a new instance of the MD5 Digest.
-    pub fn new() -> Md5 {
-        Md5 {
-            length_bytes: 0,
-            buffer: Default::default(),
-            state: Md5State::new(),
-        }
-    }
-
     fn finalize(&mut self) {
         let self_state = &mut self.state;
         self.buffer.standard_padding(8, |d: &[u8]| {
@@ -162,12 +154,17 @@ impl Md5 {
     }
 }
 
-impl Default for Md5 {
-    fn default() -> Self { Self::new() }
-}
-
 impl Digest for Md5 {
-    type N = U16;
+    type R = U16;
+    type B = BlockSize;
+
+    fn new() -> Md5 {
+        Md5 {
+            length_bytes: 0,
+            buffer: Default::default(),
+            state: Md5State::new(),
+        }
+    }
 
     fn input(&mut self, input: &[u8]) {
         // Unlike Sha1 and Sha2, the length value in MD5 is defined as
@@ -179,7 +176,7 @@ impl Digest for Md5 {
         });
     }
 
-    fn result(mut self) -> GenericArray<u8, Self::N> {
+    fn result(mut self) -> GenericArray<u8, Self::R> {
         self.finalize();
 
         let mut out = GenericArray::new();
@@ -189,6 +186,4 @@ impl Digest for Md5 {
         write_u32_le(&mut out[12..16], self.state.s.3);
         out
     }
-
-    fn block_size(&self) -> usize { self.buffer.size() }
 }

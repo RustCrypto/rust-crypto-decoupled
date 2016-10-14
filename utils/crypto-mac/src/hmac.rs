@@ -20,7 +20,7 @@ fn expand_key<D: Digest>(key: &[u8]) -> GenericArray<u8, D::B> {
     let mut exp_key = GenericArray::new();
     
     if key.len() <= exp_key.len() {
-        copy_memory(key, &mut exp_key);
+        copy_memory(key, &mut exp_key[..key.len()]);
     } else {
         let mut digest = D::new();
         digest.input(key);
@@ -45,7 +45,7 @@ impl <D: Digest> Hmac<D> {
     fn derive_key(&self, mask: u8) -> GenericArray<u8, D::B> {
         let mut key = self.exp_key.clone();
         for elem in key.iter_mut() {
-            *elem ^ mask;
+            *elem ^= mask;
         }
         key
     }
