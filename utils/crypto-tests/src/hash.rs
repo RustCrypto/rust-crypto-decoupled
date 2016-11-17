@@ -19,10 +19,10 @@ macro_rules! new_tests {
     };
 }
 
-pub fn main_test<D: Digest>(tests: &[Test]) {
+pub fn main_test<D: Digest + Default>(tests: &[Test]) {
     // Test that it works when accepting the message all at once
     for t in tests.iter() {
-        let mut sh = D::new();
+        let mut sh: D = Default::default();
         sh.input(t.input);
 
         let out = sh.result();
@@ -32,7 +32,7 @@ pub fn main_test<D: Digest>(tests: &[Test]) {
 
     // Test that it works when accepting the message in pieces
     for t in tests.iter() {
-        let mut sh = D::new();
+        let mut sh: D = Default::default();
         let len = t.input.len();
         let mut left = len;
         while left > 0 {
@@ -47,8 +47,8 @@ pub fn main_test<D: Digest>(tests: &[Test]) {
     }
 }
 
-pub fn one_million_a<D: Digest>(expected: &[u8]) {
-    let mut sh = D::new();
+pub fn one_million_a<D: Digest + Default>(expected: &[u8]) {
+    let mut sh: D = Default::default();
     for _ in 0..50000 {
         sh.input(&[b'a'; 10]);
     }
