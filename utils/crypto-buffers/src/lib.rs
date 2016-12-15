@@ -1,8 +1,8 @@
 #![no_std]
-extern crate crypto_bytes;
+extern crate byte_tools;
 
 use core::cmp;
-use crypto_bytes::copy_memory;
+use byte_tools::copy_memory;
 
 #[derive(Clone,Copy)]
 pub enum BufferResult {

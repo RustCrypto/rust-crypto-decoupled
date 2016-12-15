@@ -5,4 +5,5 @@ authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
+generic-array = "0.5"
 crypto_buffers = {path = "../crypto-buffers"}

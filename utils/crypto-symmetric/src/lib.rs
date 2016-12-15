@@ -1,24 +1,32 @@
 #![no_std]
 extern crate crypto_buffers;
+extern crate generic_array;
 
 use crypto_buffers::{BufferResult, RefReadBuffer, RefWriteBuffer, ReadBuffer,
                      WriteBuffer};
 use core::cmp;
 
+use generic_array::{GenericArray, ArrayLength};
+use generic_array::typenum::{U8, U16};
 
-pub trait BlockEncryptor {
-    fn block_size(&self) -> usize;
-    fn encrypt_block(&self, input: &[u8], output: &mut [u8]);
+pub type Block<N> = GenericArray<u8, N>;
+pub type Block64 = Block<U8>;
+pub type Block128 = Block<U16>;
+
+pub trait BlockCipher {
+    type BlockSize: ArrayLength<u8>;
+
+    fn encrypt_block(&self, input: &Block<Self::BlockSize>,
+                     output: &mut Block<Self::BlockSize>);
+
+    fn decrypt_block(&self, input: &Block<Self::BlockSize>,
+                     output: &mut Block<Self::BlockSize>);
 }
+
 
 pub trait BlockEncryptorX8 {
     fn block_size(&self) -> usize;
     fn encrypt_block_x8(&self, input: &[u8], output: &mut [u8]);
-}
-
-pub trait BlockDecryptor {
-    fn block_size(&self) -> usize;
-    fn decrypt_block(&self, input: &[u8], output: &mut [u8]);
 }
 
 pub trait BlockDecryptorX8 {

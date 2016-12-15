@@ -5,5 +5,8 @@ authors = ["The Rust-Crypto Project Developers"]
 license = "MIT/Apache-2.0"
 
 [dependencies]
-crypto_bytes = {path = "../../utils/crypto-bytes"}
-blowfish = {path = "../../symmetric/blowfish"}
+byte-tools = "0.1"
+
+[dependencies.blowfish]
+path = "../../symmetric/blowfish"
+features = ["bcrypt"]
