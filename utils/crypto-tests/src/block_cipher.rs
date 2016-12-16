@@ -49,17 +49,17 @@ macro_rules! bench_block_cipher {
         extern crate generic_array;
 
         use test::Bencher;
-        use block_cipher_trait::BlockCipherVarKey;
+        use block_cipher_trait::{BlockCipher, BlockCipherVarKey, from_slice};
         use generic_array::GenericArray;
 
         #[bench]
         pub fn encrypt(bh: &mut Bencher) {
-            let state = $cipher::new($key);
-            let input = from_slice($input);
+            let state = <$cipher>::new($key);
+            let input = $input;
             let mut output = GenericArray::new();
 
             bh.iter(|| {
-                state.encrypt_block(&input, &mut output);
+                state.encrypt_block(&from_slice(input), &mut output);
             });
             bh.bytes = 8u64;
         }
